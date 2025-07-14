@@ -1,0 +1,6 @@
+# Example patch for Spark 3.2.4
+--- a/some/file.scala
++++ b/some/file.scala
+@@ ... @@
+- old line
++ new line

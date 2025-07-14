@@ -31,6 +31,20 @@ RUN set -ex; \
     apt-get update; \
     apt install  -y --no-install-recommends maven dos2unix
 
+# Copy version-specific patch and properties if they exist
+COPY spark/${SPARK_VERSION}/patch.diff /tmp/patch.diff
+COPY spark/${SPARK_VERSION}/pom-bump.properties /tmp/pom-bump.properties
+
+RUN if [ -f /tmp/patch.diff ]; then \
+      echo "Applying patch for Spark ${SPARK_VERSION}"; \
+      patch -p1 < /tmp/patch.diff; \
+    fi
+
+RUN if [ -f /tmp/pom-bump.properties ]; then \
+      echo "Using custom pom-bump.properties for Spark ${SPARK_VERSION}"; \
+      cp /tmp/pom-bump.properties /workspace/pom-bump.properties; \
+    fi
+
 WORKDIR /workspace
 
 COPY okdp-addons.pom .
