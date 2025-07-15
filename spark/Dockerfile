@@ -31,24 +31,29 @@ RUN set -ex; \
     apt-get update; \
     apt install  -y --no-install-recommends maven dos2unix
 
-# Copy version-specific patch and properties if they exist
-COPY spark/${SPARK_VERSION}/patch.diff /tmp/patch.diff
-COPY spark/${SPARK_VERSION}/pom-bump.properties /tmp/pom-bump.properties
-
-RUN if [ -f /tmp/patch.diff ]; then \
-      echo "Applying patch for Spark ${SPARK_VERSION}"; \
-      patch -p1 < /tmp/patch.diff; \
-    fi
-
-RUN if [ -f /tmp/pom-bump.properties ]; then \
-      echo "Using custom pom-bump.properties for Spark ${SPARK_VERSION}"; \
-      cp /tmp/pom-bump.properties /workspace/pom-bump.properties; \
-    fi
-
 WORKDIR /workspace
 
 COPY okdp-addons.pom .
 COPY minio.pom .
+
+# Copy the entire version-specific folder (if it exists)
+COPY ${SPARK_VERSION}/ /tmp/
+
+# Conditionally apply patch if all files and versions match
+RUN if [ -f /tmp/patch.diff ] && [ -f /tmp/pom-bump.properties ]; then \
+      . /tmp/pom-bump.properties; \
+      if [ "$spark_version" = "$SPARK_VERSION" ] && \
+         [ "$hadoop_version" = "$HADOOP_VERSION" ] && \
+         [ "$scala_version" = "$SCALA_VERSION" ] && \
+         [ "$java_version" = "$JAVA_VERSION" ]; then \
+        echo "All versions match, applying patch"; \
+        patch -p1 < /tmp/patch.diff; \
+      else \
+        echo "Version mismatch, not applying patch"; \
+      fi; \
+    else \
+      echo "No patch or pom-bump.properties found, skipping patch step"; \
+    fi
 
 # The setup consumes less space compare to inheriting from the parent pom
 # Handles the transitive dependencies versions through the pom
