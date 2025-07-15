@@ -41,7 +41,7 @@ COPY ${SPARK_VERSION}/ /tmp/
 
 # Conditionally apply patch if all files and versions match
 RUN if [ -f /tmp/patch.diff ] && [ -f /tmp/pom-bump.properties ]; then \
-      . /tmp/pom-bump.properties; \
+      eval $(grep -v '^#' /tmp/pom-bump.properties); \
       if [ "$spark_version" = "$SPARK_VERSION" ] && \
          [ "$hadoop_version" = "$HADOOP_VERSION" ] && \
          [ "$scala_version" = "$SCALA_VERSION" ] && \
