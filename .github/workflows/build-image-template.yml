@@ -123,7 +123,26 @@ jobs:
           registry: ${{ inputs.ci_registry }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+### start patch
+      - name: Read patch
+        id: read_patch
+        run: |
+          yq -o=json '.controls[]' .build/pre-build-patch.yml > controls.json
+          MATCH=$(jq -c \
+            --arg spark_version "${{ inputs.spark_version }}" \
+            --arg python_version "${{ inputs.python_version }}" \
+            --arg java_version "${{ inputs.java_version }}" \
+            --arg hadoop_version "${{ inputs.hadoop_version }}" \
+            'select(.spark_version == $spark_version and .python_version == $python_version and .java_version == $java_version and .hadoop_version == $hadoop_version)' controls.json)
+          if [ -z "$MATCH" ]; then
+            echo "patch_files=" >> $GITHUB_OUTPUT
+          else
+            echo "patch_files=$(echo $MATCH | jq -r '.patch_files | join(",")')" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
 
+        
+### end patch
       - name: Build and push to ci registry
         if: inputs.publish_to_registry == 'false'
         uses: docker/build-push-action@v5

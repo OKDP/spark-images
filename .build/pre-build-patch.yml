@@ -1,0 +1,13 @@
+controls:
+  - spark_version: "3.2.4"
+    python_version: "3.9"
+    java_version: "11"
+    hadoop_version: "3.2"
+    patch_files:
+      - test.patch
+  - spark_version: "3.3.4"
+    python_version: "3.10"
+    java_version: "17"
+    hadoop_version: "3"
+    patch_files: []
+  # Add more combinations as needed      
