@@ -123,10 +123,26 @@ jobs:
           registry: ${{ inputs.ci_registry }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
 ### start patch
+
+      - name: Prepare patch variables
+        id: patch_vars
+        # if: inputs.image == 'spark' # uncomment at the end        
+        run: |
+          MINOR=$(echo "${{ inputs.spark_version }}" | awk -F. '{print $1"."$2}')
+          PATCH_DIR="spark/spark-${MINOR}"
+          POM_PROPS="${PATCH_DIR}/pombump.properties.yml"
+          POM_DEPS="${PATCH_DIR}/pombump-deps.yml"
+          echo "minor=$MINOR" >> $GITHUB_OUTPUT
+          echo "patch_dir=$PATCH_DIR" >> $GITHUB_OUTPUT
+          echo "pom_props=$POM_PROPS" >> $GITHUB_OUTPUT
+          echo "pom_deps=$POM_DEPS" >> $GITHUB_OUTPUT
+        shell: bash
+
       - name: Read patch
         id: read_patch
-        if: inputs.image == 'spark'
+        # if: inputs.image == 'spark' # uncomment at the end
         run: |
           yq -o=json '.controls[]' .build/pre-build-patch.yml > controls.json
           MATCH=$(jq -c \
@@ -143,19 +159,31 @@ jobs:
         shell: bash
 
       - name: Apply patch
-        if: inputs.image == 'spark' && steps.read_patch.outputs.patch_files != ''
+        id: apply_patch      
+        if: steps.read_patch.outputs.patch_files != ''
         run: |
-          MINOR=$(echo "${{ inputs.spark_version }}" | awk -F. '{print $1"."$2}')
-          PATCH_DIR="spark/spark-${MINOR}"
           for patch in $(echo "${{ steps.read_patch.outputs.patch_files }}" | tr ',' '\n'); do
-            if [[ -f "$PATCH_DIR/$patch" ]]; then
+            if [[ -f "${{ steps.patch_vars.outputs.patch_dir }}/$patch" ]]; then
               echo "Applying $patch"
-              patch -p1 < "$PATCH_DIR/$patch"
+              patch -p1 < "${{ steps.patch_vars.outputs.patch_dir }}/$patch"
             fi
           done
         shell: bash
 
+      - name: Install and Run pombump
+        if: steps.read_patch.outputs.patch_files != ''      
+        run: |
+          if [[ -f "${{ steps.patch_vars.outputs.pom_props }}" ]]; then
+            sudo wget -O /usr/local/bin/pombump https://github.com/chainguard-dev/pombump/releases/latest/download/pombump-linux-amd64
+            sudo chmod +x /usr/local/bin/pombump
+            pombump --properties-file "${{ steps.patch_vars.outputs.pom_props }}" --patch-file "${{ steps.patch_vars.outputs.pom_deps }}" || true
+          else
+            echo "No pom-bump.properties found for Spark minor version ${{ steps.patch_vars.outputs.minor }}"
+          fi
+        shell: bash
+
 ### end patch
+
       - name: Build and push to ci registry
         if: inputs.publish_to_registry == 'false'
         uses: docker/build-push-action@v5
