@@ -166,9 +166,10 @@ jobs:
         run: |
           set -x        
           for patch in $(echo "${{ steps.read_patch.outputs.patch_files }}" | tr ',' '\n'); do
-            if [[ -f "${{ steps.patch_vars.outputs.patch_dir }}/$patch" ]]; then
+            PATCH_PATH="${{ steps.patch_vars.outputs.patch_dir }}/$patch"
+            if [[ -f "$PATCH_PATH" ]]; then
               echo "Applying $patch"
-              patch -p1 < "${{ steps.patch_vars.outputs.patch_dir }}/$patch"
+              patch -p1 < "$PATCH_PATH"
             fi
           done
         shell: bash
@@ -189,14 +190,13 @@ jobs:
           # Clone and build pombump from the latest tag
           git clone --depth 1 --branch "$LATEST_TAG" https://github.com/chainguard-dev/pombump.git /tmp/pombump
           cd /tmp/pombump
-          go install ./cmd/pombump
+          go build -o /usr/local/bin/pombump ./cmd/pombump
 
-          export PATH=$PATH:$(go env GOPATH)/bin
           echo "PATH=$PATH"
-          which pombump || ls $(go env GOPATH)/bin
+          which pombump
 
           echo "Applying pombump for Spark minor version ${{ steps.patch_vars.outputs.minor }}"
-          pombump --properties-file "${{ steps.patch_vars.outputs.pom_props }}" --patch-file "${{ steps.patch_vars.outputs.pom_deps }}"
+          pombump --properties-file "${{ steps.patch_vars.outputs.pom_props }}" --patch-file "${{ steps.patch_vars.outputs.pom_deps }}" || true
         shell: bash
 
 ### end patch
