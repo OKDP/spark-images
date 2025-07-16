@@ -126,6 +126,7 @@ jobs:
 ### start patch
       - name: Read patch
         id: read_patch
+        if: inputs.image == 'spark'
         run: |
           yq -o=json '.controls[]' .build/pre-build-patch.yml > controls.json
           MATCH=$(jq -c \
@@ -141,7 +142,19 @@ jobs:
           fi
         shell: bash
 
-        
+      - name: Apply patch
+        if: inputs.image == 'spark' && steps.read_patch.outputs.patch_files != ''
+        run: |
+          MINOR=$(echo "${{ inputs.spark_version }}" | awk -F. '{print $1"."$2}')
+          PATCH_DIR="spark/spark-${MINOR}"
+          for patch in $(echo "${{ steps.read_patch.outputs.patch_files }}" | tr ',' '\n'); do
+            if [[ -f "$PATCH_DIR/$patch" ]]; then
+              echo "Applying $patch"
+              patch -p1 < "$PATCH_DIR/$patch"
+            fi
+          done
+        shell: bash
+
 ### end patch
       - name: Build and push to ci registry
         if: inputs.publish_to_registry == 'false'
