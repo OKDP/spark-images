@@ -176,7 +176,7 @@ jobs:
       - name: Install and Run pombump
         if: steps.read_patch.outputs.patch_files != ''
         run: |
-          set -x        
+          set -x
           # Install Go if not present
           if ! command -v go &> /dev/null; then
             sudo apt-get update
@@ -192,9 +192,11 @@ jobs:
           go install ./cmd/pombump
 
           export PATH=$PATH:$(go env GOPATH)/bin
+          echo "PATH=$PATH"
+          which pombump || ls $(go env GOPATH)/bin
 
           echo "Applying pombump for Spark minor version ${{ steps.patch_vars.outputs.minor }}"
-          pombump --properties-file "${{ steps.patch_vars.outputs.pom_props }}" --patch-file "${{ steps.patch_vars.outputs.pom_deps }}" || true
+          pombump --properties-file "${{ steps.patch_vars.outputs.pom_props }}" --patch-file "${{ steps.patch_vars.outputs.pom_deps }}"
         shell: bash
 
 ### end patch

@@ -5,6 +5,7 @@ controls:
     hadoop_version: "3.2"
     patch_files:
       - test.patch
+      - test2.patch
   - spark_version: "3.3.4"
     python_version: "3.10"
     java_version: "17"
