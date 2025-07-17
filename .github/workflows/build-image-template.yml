@@ -194,8 +194,7 @@ jobs:
           echo "Applying pombump for Spark minor version ${{ steps.patch_vars.outputs.minor }}"
           cd "${{ github.workspace }}"
           ls -lrt .
-          # pombump pom.xml --properties-file "${{ steps.patch_vars.outputs.pom_props }}" --patch-file "${{ steps.patch_vars.outputs.pom_deps }}"
-          pombump ./spark/minio.pom
+          pombump ./spark/minio.pom --properties-file "${{ steps.patch_vars.outputs.pom_props }}" --patch-file "${{ steps.patch_vars.outputs.pom_deps }}"
         shell: bash
 
 ### end patch
