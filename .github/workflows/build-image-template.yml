@@ -128,7 +128,7 @@ jobs:
 
       - name: Prepare patch variables
         id: patch_vars
-        if: inputs.image == 'spark-base' # uncomment at the end; use only spark     
+        if: inputs.image == 'spark'  
         run: |
           set -x
           MINOR=$(echo "${{ inputs.spark_version }}" | awk -F. '{print $1"."$2}')
@@ -147,7 +147,7 @@ jobs:
 
       - name: Read patch
         id: read_patch
-        if: inputs.image == 'spark-base' # uncomment at the end; use only spark
+        if: inputs.image == 'spark'
         run: |
           set -x        
           yq -o=json '.controls[]' .build/pre-build-patch.yml > controls.json
