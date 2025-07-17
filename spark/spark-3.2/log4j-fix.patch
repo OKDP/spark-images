@@ -1,0 +1,535 @@
+diff --git a/common/kvstore/pom.xml b/common/kvstore/pom.xml
+index 6c5d238..4940370 100644
+--- a/common/kvstore/pom.xml
++++ b/common/kvstore/pom.xml
+@@ -67,8 +67,18 @@
+       <scope>test</scope>
+     </dependency>
+     <dependency>
+-      <groupId>log4j</groupId>
+-      <artifactId>log4j</artifactId>
++      <groupId>org.apache.logging.log4j</groupId>
++      <artifactId>log4j-api</artifactId>
++      <scope>test</scope>
++    </dependency>
++    <dependency>
++      <groupId>org.apache.logging.log4j</groupId>
++      <artifactId>log4j-core</artifactId>
++      <scope>test</scope>
++    </dependency>
++    <dependency>
++      <groupId>org.apache.logging.log4j</groupId>
++      <artifactId>log4j-1.2-api</artifactId>
+       <scope>test</scope>
+     </dependency>
+     <dependency>
+@@ -77,8 +87,8 @@
+       <scope>test</scope>
+     </dependency>
+     <dependency>
+-      <groupId>org.slf4j</groupId>
+-      <artifactId>slf4j-log4j12</artifactId>
++      <groupId>org.apache.logging.log4j</groupId>
++      <artifactId>log4j-slf4j-impl</artifactId>
+       <scope>test</scope>
+     </dependency>
+     <dependency>
+diff --git a/common/network-common/pom.xml b/common/network-common/pom.xml
+index a957f7b..ad39b4e 100644
+--- a/common/network-common/pom.xml
++++ b/common/network-common/pom.xml
+@@ -102,8 +102,23 @@
+ 
+     <!-- Test dependencies -->
+     <dependency>
+-      <groupId>log4j</groupId>
+-      <artifactId>log4j</artifactId>
++      <groupId>org.apache.logging.log4j</groupId>
++      <artifactId>log4j-api</artifactId>
++      <scope>test</scope>
++    </dependency>
++    <dependency>
++      <groupId>org.apache.logging.log4j</groupId>
++      <artifactId>log4j-core</artifactId>
++      <scope>test</scope>
++    </dependency>
++    <dependency>
++      <groupId>org.apache.logging.log4j</groupId>
++      <artifactId>log4j-1.2-api</artifactId>
++      <scope>test</scope>
++    </dependency>
++    <dependency>
++      <groupId>org.apache.logging.log4j</groupId>
++      <artifactId>log4j-slf4j-impl</artifactId>
+       <scope>test</scope>
+     </dependency>
+     <dependency>
+@@ -128,11 +143,6 @@
+       <artifactId>mockito-core</artifactId>
+       <scope>test</scope>
+     </dependency>
+-    <dependency>
+-      <groupId>org.slf4j</groupId>
+-      <artifactId>slf4j-log4j12</artifactId>
+-      <scope>test</scope>
+-    </dependency>
+   </dependencies>
+ 
+   <build>
+diff --git a/common/network-shuffle/pom.xml b/common/network-shuffle/pom.xml
+index 7d0a6be..bc7c8b0 100644
+--- a/common/network-shuffle/pom.xml
++++ b/common/network-shuffle/pom.xml
+@@ -88,8 +88,23 @@
+     </dependency>
+ 
+     <dependency>
+-      <groupId>log4j</groupId>
+-      <artifactId>log4j</artifactId>
++      <groupId>org.apache.logging.log4j</groupId>
++      <artifactId>log4j-api</artifactId>
++      <scope>test</scope>
++    </dependency>
++    <dependency>
++      <groupId>org.apache.logging.log4j</groupId>
++      <artifactId>log4j-core</artifactId>
++      <scope>test</scope>
++    </dependency>
++    <dependency>
++      <groupId>org.apache.logging.log4j</groupId>
++      <artifactId>log4j-1.2-api</artifactId>
++      <scope>test</scope>
++    </dependency>
++    <dependency>
++      <groupId>org.apache.logging.log4j</groupId>
++      <artifactId>log4j-slf4j-impl</artifactId>
+       <scope>test</scope>
+     </dependency>
+     <dependency>
+diff --git a/common/network-yarn/pom.xml b/common/network-yarn/pom.xml
+index 4844b44..7a30e34 100644
+--- a/common/network-yarn/pom.xml
++++ b/common/network-yarn/pom.xml
+@@ -174,6 +174,10 @@
+                           tofile="${project.build.directory}/exploded/META-INF/native/lib${spark.shade.native.packageName}_netty_transport_native_epoll_x86_64.so" />
+                     <move file="${project.build.directory}/exploded/META-INF/native/libnetty_transport_native_kqueue_x86_64.jnilib"
+                           tofile="${project.build.directory}/exploded/META-INF/native/lib${spark.shade.native.packageName}_netty_transport_native_kqueue_x86_64.jnilib" />
++                    <move file="${project.build.directory}/exploded/META-INF/native/libnetty_transport_native_epoll_aarch_64.so"
++                          tofile="${project.build.directory}/exploded/META-INF/native/lib${spark.shade.native.packageName}_netty_transport_native_epoll_aarch_64.so" />
++                    <move file="${project.build.directory}/exploded/META-INF/native/libnetty_transport_native_kqueue_aarch_64.jnilib"
++                          tofile="${project.build.directory}/exploded/META-INF/native/lib${spark.shade.native.packageName}_netty_transport_native_kqueue_aarch_64.jnilib" />
+                     <jar destfile="${shuffle.jar}" basedir="${project.build.directory}/exploded" />
+                 </target>
+             </configuration>
+diff --git a/core/pom.xml b/core/pom.xml
+index 91927e0..88f705c 100644
+--- a/core/pom.xml
++++ b/core/pom.xml
+@@ -213,12 +213,24 @@
+       <artifactId>jcl-over-slf4j</artifactId>
+     </dependency>
+     <dependency>
+-      <groupId>log4j</groupId>
+-      <artifactId>log4j</artifactId>
++      <groupId>org.apache.logging.log4j</groupId>
++      <artifactId>log4j-slf4j-impl</artifactId>
+     </dependency>
+     <dependency>
+-      <groupId>org.slf4j</groupId>
+-      <artifactId>slf4j-log4j12</artifactId>
++      <groupId>org.apache.logging.log4j</groupId>
++      <artifactId>log4j-api</artifactId>
++    </dependency>
++    <dependency>
++      <groupId>org.apache.logging.log4j</groupId>
++      <artifactId>log4j-core</artifactId>
++    </dependency>
++    <dependency>
++      <groupId>org.apache.logging.log4j</groupId>
++      <artifactId>log4j-1.2-api</artifactId>
++    </dependency>
++    <dependency>
++      <groupId>org.apache.logging.log4j</groupId>
++      <artifactId>log4j-layout-template-json</artifactId>
+     </dependency>
+     <dependency>
+       <groupId>com.ning</groupId>
+diff --git a/external/kafka-0-10-assembly/pom.xml b/external/kafka-0-10-assembly/pom.xml
+index 359dfa3..a97f511 100644
+--- a/external/kafka-0-10-assembly/pom.xml
++++ b/external/kafka-0-10-assembly/pom.xml
+@@ -96,8 +96,8 @@
+       <scope>provided</scope>
+     </dependency>
+     <dependency>
+-      <groupId>log4j</groupId>
+-      <artifactId>log4j</artifactId>
++      <groupId>org.apache.logging.log4j</groupId>
++      <artifactId>log4j-api</artifactId>
+       <scope>provided</scope>
+     </dependency>
+     <dependency>
+@@ -106,13 +106,13 @@
+       <scope>provided</scope>
+     </dependency>
+     <dependency>
+-      <groupId>org.slf4j</groupId>
+-      <artifactId>slf4j-api</artifactId>
++      <groupId>org.apache.logging.log4j</groupId>
++      <artifactId>log4j-1.2-api</artifactId>
+       <scope>provided</scope>
+     </dependency>
+     <dependency>
+       <groupId>org.slf4j</groupId>
+-      <artifactId>slf4j-log4j12</artifactId>
++      <artifactId>slf4j-api</artifactId>
+       <scope>provided</scope>
+     </dependency>
+     <dependency>
+diff --git a/external/kinesis-asl-assembly/pom.xml b/external/kinesis-asl-assembly/pom.xml
+index eb80dc1..43cf3e0 100644
+--- a/external/kinesis-asl-assembly/pom.xml
++++ b/external/kinesis-asl-assembly/pom.xml
+@@ -85,8 +85,18 @@
+       <scope>provided</scope>
+     </dependency>
+     <dependency>
+-      <groupId>log4j</groupId>
+-      <artifactId>log4j</artifactId>
++      <groupId>org.apache.logging.log4j</groupId>
++      <artifactId>log4j-api</artifactId>
++      <scope>provided</scope>
++    </dependency>
++    <dependency>
++      <groupId>org.apache.logging.log4j</groupId>
++      <artifactId>log4j-core</artifactId>
++      <scope>provided</scope>
++    </dependency>
++    <dependency>
++      <groupId>org.apache.logging.log4j</groupId>
++      <artifactId>log4j-1.2-api</artifactId>
+       <scope>provided</scope>
+     </dependency>
+     <dependency>
+@@ -121,8 +131,9 @@
+       <scope>provided</scope>
+     </dependency>
+     <dependency>
+-      <groupId>org.slf4j</groupId>
+-      <artifactId>slf4j-log4j12</artifactId>
++      <groupId>org.apache.logging.log4j</groupId>
++      <artifactId>log4j-slf4j-impl</artifactId>
++      <version>${log4j.version}</version>
+       <scope>provided</scope>
+     </dependency>
+     <dependency>
+diff --git a/launcher/pom.xml b/launcher/pom.xml
+index 4c50841..584937c 100644
+--- a/launcher/pom.xml
++++ b/launcher/pom.xml
+@@ -37,8 +37,18 @@
+   <dependencies>
+     <!-- NOTE: only test-scope dependencies are allowed in this module. -->
+     <dependency>
+-      <groupId>log4j</groupId>
+-      <artifactId>log4j</artifactId>
++      <groupId>org.apache.logging.log4j</groupId>
++      <artifactId>log4j-api</artifactId>
++      <scope>test</scope>
++    </dependency>
++    <dependency>
++      <groupId>org.apache.logging.log4j</groupId>
++      <artifactId>log4j-core</artifactId>
++      <scope>test</scope>
++    </dependency>
++    <dependency>
++      <groupId>org.apache.logging.log4j</groupId>
++      <artifactId>log4j-1.2-api</artifactId>
+       <scope>test</scope>
+     </dependency>
+     <dependency>
+@@ -57,8 +67,8 @@
+       <scope>test</scope>
+     </dependency>
+     <dependency>
+-      <groupId>org.slf4j</groupId>
+-      <artifactId>slf4j-log4j12</artifactId>
++      <groupId>org.apache.logging.log4j</groupId>
++      <artifactId>log4j-slf4j-impl</artifactId>
+       <scope>test</scope>
+     </dependency>
+ 
+diff --git a/pom.xml b/pom.xml
+index 4b4ca77..bb5b267 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -118,8 +118,8 @@
+     <maven.version>3.6.3</maven.version>
+     <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
+     <sbt.project.name>spark</sbt.project.name>
+-    <slf4j.version>1.7.30</slf4j.version>
+-    <log4j.version>1.2.17</log4j.version>
++    <slf4j.version>1.7.36</slf4j.version>
++    <log4j.version>2.23.1</log4j.version>
+     <hadoop.version>3.3.1</hadoop.version>
+     <!-- SPARK-42188: When updating `protobuf.version`, also need to update `protoVersion` in `SparkBuild.scala` -->
+     <protobuf.version>2.5.0</protobuf.version>
+@@ -169,6 +169,7 @@
+     <scalafmt.skip>true</scalafmt.skip>
+     <codehaus.jackson.version>1.9.13</codehaus.jackson.version>
+     <fasterxml.jackson.version>2.12.3</fasterxml.jackson.version>
++    <fasterxml.jackson.databind.version>2.12.3</fasterxml.jackson.databind.version>
+     <snappy.version>1.1.8.4</snappy.version>
+     <netlib.java.version>1.1.2</netlib.java.version>
+     <netlib.ludovic.dev.version>2.2.1</netlib.ludovic.dev.version>
+@@ -691,12 +692,6 @@
+         <version>${slf4j.version}</version>
+         <scope>${hadoop.deps.scope}</scope>
+       </dependency>
+-      <dependency>
+-        <groupId>org.slf4j</groupId>
+-        <artifactId>slf4j-log4j12</artifactId>
+-        <version>${slf4j.version}</version>
+-        <scope>${hadoop.deps.scope}</scope>
+-      </dependency>
+       <dependency>
+         <groupId>org.slf4j</groupId>
+         <artifactId>jul-to-slf4j</artifactId>
+@@ -709,8 +704,30 @@
+         <!-- runtime scope is appropriate, but causes SBT build problems -->
+       </dependency>
+       <dependency>
+-        <groupId>log4j</groupId>
+-        <artifactId>log4j</artifactId>
++        <groupId>org.apache.logging.log4j</groupId>
++        <artifactId>log4j-slf4j-impl</artifactId>
++        <version>${log4j.version}</version>
++        <scope>${hadoop.deps.scope}</scope>
++      </dependency>
++      <dependency>
++        <groupId>org.apache.logging.log4j</groupId>
++        <artifactId>log4j-api</artifactId>
++        <version>${log4j.version}</version>
++      </dependency>
++      <dependency>
++        <groupId>org.apache.logging.log4j</groupId>
++        <artifactId>log4j-core</artifactId>
++        <version>${log4j.version}</version>
++      </dependency>
++      <dependency>
++        <groupId>org.apache.logging.log4j</groupId>
++        <artifactId>log4j-layout-template-json</artifactId>
++        <version>${log4j.version}</version>
++     </dependency>
++      <dependency>
++        <!-- API bridge between log4j 1 and 2 -->
++        <groupId>org.apache.logging.log4j</groupId>
++        <artifactId>log4j-1.2-api</artifactId>
+         <version>${log4j.version}</version>
+         <scope>${hadoop.deps.scope}</scope>
+       </dependency>
+@@ -770,7 +787,81 @@
+       <dependency>
+         <groupId>io.netty</groupId>
+         <artifactId>netty-all</artifactId>
+-        <version>4.1.68.Final</version>
++        <version>4.1.106.Final</version>
++        <exclusions>
++          <exclusion>
++            <groupId>io.netty</groupId>
++            <artifactId>netty-codec-dns</artifactId>
++          </exclusion>
++          <exclusion>
++            <groupId>io.netty</groupId>
++            <artifactId>netty-codec-haproxy</artifactId>
++          </exclusion>
++          <exclusion>
++            <groupId>io.netty</groupId>
++            <artifactId>netty-codec-http</artifactId>
++          </exclusion>
++          <exclusion>
++            <groupId>io.netty</groupId>
++            <artifactId>netty-codec-http2</artifactId>
++          </exclusion>
++          <exclusion>
++            <groupId>io.netty</groupId>
++            <artifactId>netty-codec-memcache</artifactId>
++          </exclusion>
++          <exclusion>
++            <groupId>io.netty</groupId>
++            <artifactId>netty-codec-mqtt</artifactId>
++          </exclusion>
++          <exclusion>
++            <groupId>io.netty</groupId>
++            <artifactId>netty-codec-redis</artifactId>
++          </exclusion>
++          <exclusion>
++            <groupId>io.netty</groupId>
++            <artifactId>netty-codec-smtp</artifactId>
++          </exclusion>
++          <exclusion>
++            <groupId>io.netty</groupId>
++            <artifactId>netty-codec-socks</artifactId>
++          </exclusion>
++          <exclusion>
++            <groupId>io.netty</groupId>
++            <artifactId>netty-codec-stomp</artifactId>
++          </exclusion>
++          <exclusion>
++            <groupId>io.netty</groupId>
++            <artifactId>netty-codec-xml</artifactId>
++          </exclusion>
++          <exclusion>
++            <groupId>io.netty</groupId>
++            <artifactId>netty-handler-proxy</artifactId>
++          </exclusion>
++          <exclusion>
++            <groupId>io.netty</groupId>
++            <artifactId>netty-resolver-dns</artifactId>
++          </exclusion>
++          <exclusion>
++            <groupId>io.netty</groupId>
++            <artifactId>netty-resolver-dns-classes-macos</artifactId>
++          </exclusion>
++          <exclusion>
++            <groupId>io.netty</groupId>
++            <artifactId>netty-resolver-dns-native-macos</artifactId>
++          </exclusion>
++          <exclusion>
++            <groupId>io.netty</groupId>
++            <artifactId>netty-transport-rxtx</artifactId>
++          </exclusion>
++          <exclusion>
++            <groupId>io.netty</groupId>
++            <artifactId>netty-transport-sctp</artifactId>
++          </exclusion>
++          <exclusion>
++            <groupId>io.netty</groupId>
++            <artifactId>netty-transport-udt</artifactId>
++          </exclusion>
++        </exclusions>
+       </dependency>
+       <dependency>
+         <groupId>org.apache.derby</groupId>
+@@ -810,13 +901,18 @@
+       <dependency>
+         <groupId>com.fasterxml.jackson.core</groupId>
+         <artifactId>jackson-databind</artifactId>
+-        <version>${fasterxml.jackson.version}</version>
++        <version>${fasterxml.jackson.databind.version}</version>
+       </dependency>
+       <dependency>
+         <groupId>com.fasterxml.jackson.core</groupId>
+         <artifactId>jackson-annotations</artifactId>
+         <version>${fasterxml.jackson.version}</version>
+       </dependency>
++      <dependency>
++        <groupId>com.fasterxml.jackson.datatype</groupId>
++        <artifactId>jackson-datatype-jsr310</artifactId>
++        <version>${fasterxml.jackson.version}</version>
++      </dependency>
+       <!-- Guava is excluded because of SPARK-6149.  The Guava version referenced in this module is
+            15.0, which causes runtime incompatibility issues. -->
+       <dependency>
+@@ -1090,6 +1186,18 @@
+             <groupId>jline</groupId>
+             <artifactId>jline</artifactId>
+           </exclusion>
++          <exclusion>
++            <groupId>org.slf4j</groupId>
++            <artifactId>slf4j-api</artifactId>
++          </exclusion>
++          <exclusion>
++            <groupId>org.slf4j</groupId>
++            <artifactId>slf4j-log4j12</artifactId>
++          </exclusion>
++          <exclusion>
++            <groupId>log4j</groupId>
++            <artifactId>log4j</artifactId>
++          </exclusion>
+         </exclusions>
+       </dependency>
+       <dependency>
+@@ -1208,6 +1316,14 @@
+             <groupId>org.eclipse.jetty</groupId>
+             <artifactId>jetty-webapp</artifactId>
+           </exclusion>
++          <exclusion>
++            <groupId>log4j</groupId>
++            <artifactId>log4j</artifactId>
++          </exclusion>
++          <exclusion>
++            <groupId>org.slf4j</groupId>
++            <artifactId>slf4j-log4j12</artifactId>
++          </exclusion>
+         </exclusions>
+       </dependency>
+       <dependency>
+@@ -1220,6 +1336,18 @@
+             <groupId>org.apache.directory.api</groupId>
+             <artifactId>api-ldap-schema-data</artifactId>
+           </exclusion>
++          <exclusion>
++            <groupId>log4j</groupId>
++            <artifactId>log4j</artifactId>
++          </exclusion>
++          <exclusion>
++            <groupId>org.slf4j</groupId>
++            <artifactId>slf4j-log4j12</artifactId>
++          </exclusion>
++          <exclusion>
++            <groupId>org.slf4j</groupId>
++            <artifactId>slf4j-reload4j</artifactId>
++          </exclusion>
+         </exclusions>
+       </dependency>
+       <dependency>
+@@ -1382,6 +1510,14 @@
+             <groupId>com.sun.jersey.contribs</groupId>
+             <artifactId>*</artifactId>
+           </exclusion>
++          <exclusion>
++            <groupId>log4j</groupId>
++            <artifactId>log4j</artifactId>
++          </exclusion>
++          <exclusion>
++            <groupId>org.slf4j</groupId>
++            <artifactId>slf4j-log4j12</artifactId>
++          </exclusion>
+         </exclusions>
+       </dependency>
+       <dependency>
+@@ -1560,6 +1696,14 @@
+             <groupId>com.sun.jersey.contribs</groupId>
+             <artifactId>*</artifactId>
+           </exclusion>
++          <exclusion>
++            <groupId>log4j</groupId>
++            <artifactId>log4j</artifactId>
++          </exclusion>
++          <exclusion>
++            <groupId>org.slf4j</groupId>
++            <artifactId>slf4j-log4j12</artifactId>
++          </exclusion>
+         </exclusions>
+       </dependency>
+       <dependency>
+@@ -1588,6 +1732,18 @@
+             <groupId>com.github.spotbugs</groupId>
+             <artifactId>spotbugs-annotations</artifactId>
+           </exclusion>
++          <exclusion>
++            <groupId>org.slf4j</groupId>
++            <artifactId>slf4j-api</artifactId>
++          </exclusion>
++          <exclusion>
++            <groupId>org.slf4j</groupId>
++            <artifactId>slf4j-log4j12</artifactId>
++          </exclusion>
++          <exclusion>
++            <groupId>log4j</groupId>
++            <artifactId>log4j</artifactId>
++          </exclusion>
+         </exclusions>
+       </dependency>
+       <dependency>

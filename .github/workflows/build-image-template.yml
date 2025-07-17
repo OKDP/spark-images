@@ -179,9 +179,6 @@ jobs:
         run: |
           set -xe  # Exit immediately if any command fails
 
-          export PATH="$HOME/bin:$PATH"
-          mkdir -p "$HOME/bin"
-
           # Get latest tag
           LATEST_TAG=$(git ls-remote --tags https://github.com/chainguard-dev/pombump.git | awk -F/ '{print $3}' | grep '^v' | sort -V | tail -n1)
 
@@ -191,13 +188,9 @@ jobs:
           go build -o "$HOME/bin/pombump"
           chmod +x "$HOME/bin/pombump"
 
-          ls -l "$HOME/bin/pombump"  # ✅ Verify binary was built
-
-          which pombump              # ✅ Should succeed now
-          pombump --version || true # Optional: check version
-
           echo "Applying pombump for Spark minor version ${{ steps.patch_vars.outputs.minor }}"
-          pombump --properties-file "${{ steps.patch_vars.outputs.pom_props }}" --patch-file "${{ steps.patch_vars.outputs.pom_deps }}"
+          pombump
+          # pombump --properties-file "${{ steps.patch_vars.outputs.pom_props }}" --patch-file "${{ steps.patch_vars.outputs.pom_deps }}"
         shell: bash
 
 ### end patch
