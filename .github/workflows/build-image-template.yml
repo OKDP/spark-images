@@ -192,8 +192,9 @@ jobs:
           chmod +x "$HOME/bin/pombump"
 
           echo "Applying pombump for Spark minor version ${{ steps.patch_vars.outputs.minor }}"
+          cd "${{ github.workspace }}"
           ls -lrt .
-          pombump
+          pombump pom.xml
           # pombump --properties-file "${{ steps.patch_vars.outputs.pom_props }}" --patch-file "${{ steps.patch_vars.outputs.pom_deps }}"
         shell: bash
 
