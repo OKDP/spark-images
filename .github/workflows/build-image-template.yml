@@ -195,6 +195,7 @@ jobs:
           git clone --depth 1 --branch "$LATEST_TAG" https://github.com/chainguard-dev/pombump.git /tmp/pombump
           cd /tmp/pombump
           go build -o "$HOME/bin/pombump" ./cmd/pombump
+          chmod +x "$HOME/bin/pombump"
 
           ls -l "$HOME/bin/pombump"  # ✅ Verify binary was built
 
@@ -202,10 +203,8 @@ jobs:
           pombump --version || true # Optional: check version
 
           echo "Applying pombump for Spark minor version ${{ steps.patch_vars.outputs.minor }}"
-          pombump --properties-file "${{ steps.patch_vars.outputs.pom_props }}" --patch-file "${{ steps.patch_vars.outputs.pom_deps }}" || true
+          pombump --properties-file "${{ steps.patch_vars.outputs.pom_props }}" --patch-file "${{ steps.patch_vars.outputs.pom_deps }}"
         shell: bash
-
-
 
 ### end patch
 
