@@ -168,7 +168,8 @@ jobs:
           for patch in $(echo "${{ steps.read_patch.outputs.patch_files }}" | tr ',' '\n'); do
             PATCH_PATH="${{ steps.patch_vars.outputs.patch_dir }}/$patch"
             if [[ -f "$PATCH_PATH" ]]; then
-              echo "Applying $patch"
+              cat "$PATCH_PATH"
+              echo "Applying patch $patch"
               patch -p1 < "$PATCH_PATH"
             fi
           done
