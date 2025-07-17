@@ -132,13 +132,17 @@ jobs:
         run: |
           set -x
           MINOR=$(echo "${{ inputs.spark_version }}" | awk -F. '{print $1"."$2}')
-          PATCH_DIR="./spark/spark-${MINOR}"
+          PATCH_DIR="./${{ inputs.image }}/spark-${MINOR}"
           POM_PROPS="${PATCH_DIR}/pombump-properties.yml"
           POM_DEPS="${PATCH_DIR}/pombump-deps.yml"
+          POM_FILES_LIST=$(find "${{ inputs.image }}" -name '*.pom' -type f)
           echo "minor=$MINOR" >> $GITHUB_OUTPUT
           echo "patch_dir=$PATCH_DIR" >> $GITHUB_OUTPUT
           echo "pom_props=$POM_PROPS" >> $GITHUB_OUTPUT
           echo "pom_deps=$POM_DEPS" >> $GITHUB_OUTPUT
+          echo "pom_files_multiline<<EOF" >> $GITHUB_OUTPUT
+          echo "$POM_FILES_LIST" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Read patch
@@ -177,10 +181,8 @@ jobs:
       - name: Install and Run pombump
         if: steps.read_patch.outputs.patch_files != ''
         run: |
-          set -xe  # Exit immediately if any command fails
-
+          set -x
           export PATH="$HOME/bin:$PATH"
-          # mkdir -p "$HOME/bin"
 
           # Get latest tag
           LATEST_TAG=$(git ls-remote --tags https://github.com/chainguard-dev/pombump.git | awk -F/ '{print $3}' | grep '^v' | sort -V | tail -n1)
@@ -193,8 +195,14 @@ jobs:
 
           echo "Applying pombump for Spark minor version ${{ steps.patch_vars.outputs.minor }}"
           cd "${{ github.workspace }}"
-          ls -lrt .
-          pombump ./spark/minio.pom --properties-file "${{ steps.patch_vars.outputs.pom_props }}" --patch-file "${{ steps.patch_vars.outputs.pom_deps }}"
+
+          # Loop over each .pom file
+          echo "${{ steps.patch_vars.outputs.pom_files_multiline }}" | while read pom; do
+            echo "Running pombump on $pom"
+            pombump "$pom" \
+              --properties-file "${{ steps.patch_vars.outputs.pom_props }}" \
+              --patch-file "${{ steps.patch_vars.outputs.pom_deps }}"
+          done
         shell: bash
 
 ### end patch
