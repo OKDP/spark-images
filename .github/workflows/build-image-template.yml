@@ -133,7 +133,7 @@ jobs:
           set -x
           MINOR=$(echo "${{ inputs.spark_version }}" | awk -F. '{print $1"."$2}')
           PATCH_DIR="./spark/spark-${MINOR}"
-          POM_PROPS="${PATCH_DIR}/pombump.properties.yml"
+          POM_PROPS="${PATCH_DIR}/pombump-properties.yml"
           POM_DEPS="${PATCH_DIR}/pombump-deps.yml"
           echo "minor=$MINOR" >> $GITHUB_OUTPUT
           echo "patch_dir=$PATCH_DIR" >> $GITHUB_OUTPUT
