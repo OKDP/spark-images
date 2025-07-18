@@ -67,6 +67,11 @@ on:
         description: GitHub Actions Runner image
         required: true
         type: string
+      enable_patch_pombump:
+        description: 'Enable patch and pombump step'
+        required: false
+        type: boolean
+        default: true
 
 jobs:
   
@@ -128,7 +133,7 @@ jobs:
 
       - name: Apply patch and run pombump
         uses: ./.github/actions/patch-pombump
-        if: inputs.image == 'spark'
+        if: inputs.image == 'spark' && inputs.enable_patch_pombump == true
         # continue-on-error: true
         with:
           image: ${{ inputs.image }}

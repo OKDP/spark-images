@@ -28,14 +28,12 @@ runs:
         PATCH_DIR="./${{ inputs.image }}/spark-${MINOR}"
         POM_PROPS="${PATCH_DIR}/pombump-properties.yaml"
         POM_DEPS="${PATCH_DIR}/pombump-deps.yaml"
-        POM_FILES_LIST=$(find "${{ inputs.image }}" -name '*.pom' -type f)
+        POM_DIR="./${{ inputs.image }}"
         echo "minor=$MINOR" >> $GITHUB_OUTPUT
         echo "patch_dir=$PATCH_DIR" >> $GITHUB_OUTPUT
         echo "pom_props=$POM_PROPS" >> $GITHUB_OUTPUT
         echo "pom_deps=$POM_DEPS" >> $GITHUB_OUTPUT
-        echo "pom_files_multiline<<EOF" >> $GITHUB_OUTPUT
-        echo "$POM_FILES_LIST" >> $GITHUB_OUTPUT
-        echo "EOF" >> $GITHUB_OUTPUT
+        echo "pom_dir=$POM_DIR" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Read patch
@@ -51,8 +49,10 @@ runs:
           'select(.spark_version == $spark_version and .python_version == $python_version and .java_version == $java_version and .hadoop_version == $hadoop_version)' controls.json)
         if [ -z "$MATCH" ]; then
           echo "patch_files=" >> $GITHUB_OUTPUT
+          echo "pom_files=" >> $GITHUB_OUTPUT
         else
           echo "patch_files=$(echo $MATCH | jq -r '.patch_files | join(",")')" >> $GITHUB_OUTPUT
+          echo "pom_files=$(echo $MATCH | jq -r '.pom_files | join(",")')" >> $GITHUB_OUTPUT
         fi
       shell: bash
 
@@ -65,7 +65,7 @@ runs:
           PATCH_PATH="${{ steps.patch_vars.outputs.patch_dir }}/$patch"
           if [[ -f "$PATCH_PATH" ]]; then
             echo "Applying patch $patch"
-            patch -p1 "$PATCH_PATH"
+            patch -p1 -i "$PATCH_PATH"
           fi
         done
       shell: bash
@@ -88,12 +88,21 @@ runs:
         echo "Applying pombump for Spark minor version ${{ steps.patch_vars.outputs.minor }}"
         cd "${{ github.workspace }}"
 
-        # Loop over each .pom file
-        echo "${{ steps.patch_vars.outputs.pom_files_multiline }}" | while read pom; do
-          echo "Running pombump on $pom"
-          pombump "$pom" \
-            --properties-file "${{ steps.patch_vars.outputs.pom_props }}" \
-            --patch-file "${{ steps.patch_vars.outputs.pom_deps }}"
-        done
+        # Only use pom_files from pre-build-patch.yml, do nothing if empty
+        if [ -n "${{ steps.read_patch.outputs.pom_files }}" ]; then
+          echo "${{ steps.read_patch.outputs.pom_files }}" | tr ',' '\n' | while read pom; do
+            POM_PATH=$(find "${{ steps.patch_vars.outputs.pom_dir }}" -name "$pom" -type f | head -n1)
+            if [ -n "$POM_PATH" ]; then
+              echo "Running pombump on $POM_PATH"
+              pombump "$POM_PATH" \
+                --properties-file "${{ steps.patch_vars.outputs.pom_props }}" \
+                --patch-file "${{ steps.patch_vars.outputs.pom_deps }}"
+            else
+              echo "POM file $pom not found!"
+            fi
+          done
+        else
+          echo "No pom_files provided in pre-build-patch.yml, skipping pombump."
+        fi
       shell: bash
 

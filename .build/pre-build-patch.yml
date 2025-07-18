@@ -5,3 +5,5 @@ controls:
     hadoop_version: "3.2"
     patch_files:
       - log4j-fix.patch
+    pom_files:
+      - minio.pom
