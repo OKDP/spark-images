@@ -128,8 +128,8 @@ jobs:
 
       - name: Apply patch and run pombump
         uses: ./.github/actions/patch-pombump
-        if: inputs.image == 'spark-base'
-        continue-on-error: true
+        if: inputs.image == 'spark'
+        # continue-on-error: true
         with:
           image: ${{ inputs.image }}
           spark_version: ${{ inputs.spark_version }}
