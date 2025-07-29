@@ -1,0 +1,89 @@
+name: Patch Spark Source
+description: Apply patches to Spark source files
+inputs:
+  image:
+    description: Image name
+    required: true
+  spark_version:
+    description: Spark version
+    required: true
+  java_version:
+    description: Java version
+    required: true
+  python_version:
+    description: Python version
+    required: true
+  hadoop_version:
+    description: Hadoop version
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Prepare patch variables
+      id: patch_vars
+      run: |
+        set -x
+        MINOR=$(echo "${{ inputs.spark_version }}" | awk -F. '{print $1"."$2}')
+        PATCH_DIR="./${{ inputs.image }}/spark-${MINOR}"
+        echo "minor=$MINOR" >> $GITHUB_OUTPUT
+        echo "patch_dir=$PATCH_DIR" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - name: Read patch
+      id: read_patch
+      run: |
+        set -x        
+        yq -o=json '.controls[]' .build/pre-build-patch.yml > controls.json
+        MATCH=$(jq -c \
+          --arg spark_version "${{ inputs.spark_version }}" \
+          --arg python_version "${{ inputs.python_version }}" \
+          --arg java_version "${{ inputs.java_version }}" \
+          --arg hadoop_version "${{ inputs.hadoop_version }}" \
+          'select(.spark_version == $spark_version and .python_version == $python_version and .java_version == $java_version and .hadoop_version == $hadoop_version)' controls.json)
+        if [ -z "$MATCH" ]; then
+          echo "patch_files=" >> $GITHUB_OUTPUT
+        else
+          echo "patch_files=$(echo $MATCH | jq -r '.patch_files | join(",")')" >> $GITHUB_OUTPUT
+        fi
+      shell: bash
+
+    - name: Download and setup Spark source
+      if: steps.read_patch.outputs.patch_files != ''
+      run: |
+        set -x
+        # Clone specific Spark version
+        git clone --depth 1 --branch v${{ inputs.spark_version }} https://github.com/apache/spark.git spark-source
+        cd spark-source
+        echo "Spark v${{ inputs.spark_version }} downloaded successfully"
+      shell: bash
+
+    - name: Apply patch
+      id: apply_patch      
+      if: steps.read_patch.outputs.patch_files != ''
+      run: |
+        set -x
+        cd spark-source
+        for patch in $(echo "${{ steps.read_patch.outputs.patch_files }}" | tr ',' '\n'); do
+          PATCH_PATH="../${{ steps.patch_vars.outputs.patch_dir }}/$patch"
+          if [[ -f "$PATCH_PATH" ]]; then
+            echo "Applying patch $patch"
+            git apply "$PATCH_PATH"
+          else
+            echo "Patch file $PATCH_PATH not found!"
+          fi
+        done
+      shell: bash
+
+    - name: Copy patched files to build context
+      if: steps.read_patch.outputs.patch_files != ''
+      run: |
+        set -x
+        # Create directory for patched files
+        mkdir -p ${{ inputs.image }}/patched-spark-files
+        
+        # Copy the modified files from spark-source to build context
+        cp -r spark-source/* ${{ inputs.image }}/patched-spark-files/
+        
+        echo "Patched Spark files copied to build context"
+      shell: bash

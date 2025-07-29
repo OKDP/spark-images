@@ -1,4 +1,0 @@
-properties:
-  - property: log4j.version
-    # renovate: datasource=maven depName=org.apache.logging.log4j:log4j-core versioning=maven
-    value: "2.25.0"
