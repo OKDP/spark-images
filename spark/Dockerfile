@@ -44,14 +44,7 @@ COPY minio.pom .
 
 RUN ls -lrt
 
-# Copy patched Spark files if they exist, create directory structure
-RUN mkdir -p ./patched-spark-files
-RUN if [ -d "patched-spark-files" ]; then \
-        echo "=== COPYING PATCHED SPARK FILES ==="; \
-        cp -r patched-spark-files/* ./patched-spark-files/ 2>/dev/null || echo "Directory exists but may be empty"; \
-    else \
-        echo "=== NO PATCHED FILES DIRECTORY IN BUILD CONTEXT ==="; \
-    fi
+COPY patched-spark-files/ .
 
 RUN ls -lrt
 RUN echo "=== CHECKING FOR PATCHED FILES ==="

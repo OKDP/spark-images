@@ -124,6 +124,7 @@ runs:
         
         # Copy the modified files from spark-source to build context
         cp -r spark-source/* ${{ inputs.image }}/patched-spark-files/
-        ls -lrt
+        ls -lrt 
+        ls -lrt ${{ inputs.image }}/patched-spark-files/
         echo "Patched Spark files copied to build context"
       shell: bash
