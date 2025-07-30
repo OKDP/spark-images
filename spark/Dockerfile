@@ -24,29 +24,28 @@ ARG REPO=okdp
 ARG BASE_IMAGE=${REGISTRY}/${REPO}/spark:base-spark-${SPARK_VERSION}-scala-${SCALA_VERSION}-java-${JAVA_VERSION}
 
 FROM eclipse-temurin:${JAVA_VERSION}-jre-jammy AS okdp_addons
+ARG SPARK_VERSION=3.2.1
+ARG SCALA_VERSION=2.12
 
 RUN set -ex; \
     apt-get update; \
-    apt install -y --no-install-recommends maven dos2unix
+    apt install  -y --no-install-recommends maven dos2unix
 
 WORKDIR /workspace
 
 COPY okdp-addons.pom .
 COPY minio.pom .
 
-# Copy patched Spark files if they exist, create empty directory otherwise
-RUN mkdir -p ./spark-source
-RUN if [ -d "patched-spark-files" ]; then \
-        echo "Copying patched Spark files"; \
-        cp -r patched-spark-files/* ./spark-source/; \
-    else \
-        echo "No patched files found, continuing with empty spark-source"; \
-    fi
+# The setup consumes less space compare to inheriting from the parent pom
+# Handles the transitive dependencies versions through the pom
+# Manage Java AWS SDK v1 (hadoop <3.4)/V2 (hadoop >=3.4)
+# Some pom.xml versions comes with Control M
+# Minio and AWS profiles are mutually exclusive: aws includes minio
 
 # Use patched Spark parent POM if available, otherwise download from Maven Central
-RUN if [ -f "./spark-source/pom.xml" ]; then \
+RUN if [ -f "./patched-spark-files/pom.xml" ]; then \
         echo "Found patched Spark parent POM, using it"; \
-        cp ./spark-source/pom.xml ./spark-parent_${SCALA_VERSION}-${SPARK_VERSION}.pom; \
+        cp ./patched-spark-files/pom.xml ./spark-parent_${SCALA_VERSION}-${SPARK_VERSION}.pom; \
     else \
         echo "No patched files found, downloading Spark parent POM from Maven Central"; \
         mvn -ntp dependency:get -DgroupId=org.apache.spark -DartifactId=spark-parent_${SCALA_VERSION} -Dversion=${SPARK_VERSION} -Dpackaging=pom; \
