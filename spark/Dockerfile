@@ -42,19 +42,13 @@ COPY minio.pom .
 # Some pom.xml versions comes with Control M
 # Minio and AWS profiles are mutually exclusive: aws includes minio
 
-RUN ls -lrt
-
 COPY patched-spark-files .
 
 RUN ls -lrt
-RUN echo "=== CHECKING FOR PATCHED FILES ==="
-RUN ls -la ./patched-spark-files/ || echo "patched-spark-files directory not found"
-
-
 # Use patched Spark parent POM if available, otherwise download from Maven Central
-RUN if [ -f "./patched-spark-files/pom.xml" ]; then \
+RUN if [ -f "./pom.xml" ]; then \
         echo "Found patched Spark parent POM, using it"; \
-        cp ./patched-spark-files/pom.xml ./spark-parent_${SCALA_VERSION}-${SPARK_VERSION}.pom; \
+        cp ./pom.xml ./spark-parent_${SCALA_VERSION}-${SPARK_VERSION}.pom; \
     else \
         echo "No patched files found, downloading Spark parent POM from Maven Central"; \
         mvn -ntp dependency:get -DgroupId=org.apache.spark -DartifactId=spark-parent_${SCALA_VERSION} -Dversion=${SPARK_VERSION} -Dpackaging=pom; \
