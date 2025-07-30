@@ -36,7 +36,12 @@ COPY minio.pom .
 
 # Copy patched Spark files if they exist, create empty directory otherwise
 RUN mkdir -p ./spark-source
-COPY patched-spark-files/ ./spark-source/ 2>/dev/null || true
+RUN if [ -d "patched-spark-files" ]; then \
+        echo "Copying patched Spark files"; \
+        cp -r patched-spark-files/* ./spark-source/; \
+    else \
+        echo "No patched files found, continuing with empty spark-source"; \
+    fi
 
 # Use patched Spark parent POM if available, otherwise download from Maven Central
 RUN if [ -f "./spark-source/pom.xml" ]; then \
