@@ -44,7 +44,7 @@ COPY minio.pom .
 
 RUN ls -lrt
 
-COPY patched-spark-files/ .
+COPY patched-spark-files .
 
 RUN ls -lrt
 RUN echo "=== CHECKING FOR PATCHED FILES ==="
