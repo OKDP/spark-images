@@ -15,8 +15,7 @@
 # limitations under the License.
 #
 ARG JAVA_VERSION=11
-ARG BASE_IMAGE=eclipse-temurin:${JAVA_VERSION}-jdk-jammy 
-FROM $BASE_IMAGE AS spark_builder
+FROM eclipse-temurin:${JAVA_VERSION}-jdk-jammy AS spark_builder
 
 ARG spark_uid=185
 ARG SPARK_VERSION=3.2.1
