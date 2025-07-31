@@ -41,19 +41,8 @@ COPY minio.pom .
 # Manage Java AWS SDK v1 (hadoop <3.4)/V2 (hadoop >=3.4)
 # Some pom.xml versions comes with Control M
 # Minio and AWS profiles are mutually exclusive: aws includes minio
-
-COPY patched-spark-files .
-
-RUN ls -lrt
-# Use patched Spark parent POM if available, otherwise download from Maven Central
-RUN if [ -f "./pom.xml" ]; then \
-        echo "Found patched Spark parent POM, using it"; \
-        cp ./pom.xml ./spark-parent_${SCALA_VERSION}-${SPARK_VERSION}.pom; \
-    else \
-        echo "No patched files found, downloading Spark parent POM from Maven Central"; \
-        mvn -ntp dependency:get -DgroupId=org.apache.spark -DartifactId=spark-parent_${SCALA_VERSION} -Dversion=${SPARK_VERSION} -Dpackaging=pom; \
-        mvn -ntp dependency:copy -Dartifact=org.apache.spark:spark-parent_${SCALA_VERSION}:${SPARK_VERSION}:pom -Dproject.basedir=./ -DoutputDirectory=./; \
-    fi; \
+RUN mvn -ntp dependency:get -DgroupId=org.apache.spark -DartifactId=spark-parent_${SCALA_VERSION} -Dversion=${SPARK_VERSION} -Dpackaging=pom; \
+    mvn -ntp dependency:copy -Dartifact=org.apache.spark:spark-parent_${SCALA_VERSION}:${SPARK_VERSION}:pom -Dproject.basedir=./ -DoutputDirectory=./; \
     dos2unix spark-parent_${SCALA_VERSION}-${SPARK_VERSION}.pom; \
     HADOOP_VERSION=$(grep "<hadoop.version>" spark-parent_${SCALA_VERSION}-${SPARK_VERSION}.pom | tr -d ' ' | sed -e 's/^ *<hadoop.version>\(.*\)<\/hadoop.version> *$/\1/' | sort -rn | head -n 1); \
     mvn -ntp dependency:get -DgroupId=org.apache.hadoop -DartifactId=hadoop-aws -Dversion=${HADOOP_VERSION} -Dpackaging=pom; \
@@ -75,7 +64,10 @@ FROM $BASE_IMAGE
 
 ENV JMX_CONF_DIR     /etc/metrics/conf/
 
+# OKDP addons
 COPY --from=okdp_addons --chown=spark:spark /workspace/target/dependency/* $SPARK_HOME/jars
+
+# Jmx prometheus metrics
 COPY --chown=spark:spark metrics.properties ${JMX_CONF_DIR}/metrics.properties
 COPY --chown=spark:spark prometheus.yaml    ${JMX_CONF_DIR}/prometheus.yaml
 

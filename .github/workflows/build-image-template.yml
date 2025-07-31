@@ -133,8 +133,7 @@ jobs:
 
       - name: Apply patch
         uses: ./.github/actions/patch
-        if: inputs.image == 'spark' && inputs.enable_patch == true
-        # continue-on-error: true
+        if: inputs.image == 'spark-base' && inputs.enable_patch == true
         with:
           image: ${{ inputs.image }}
           spark_version: ${{ inputs.spark_version }}
