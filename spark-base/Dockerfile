@@ -151,8 +151,7 @@ RUN set -ex; \
 
 # Final runtime image
 ARG JAVA_VERSION=11
-ARG BASE_IMAGE_RUNTIME=eclipse-temurin:${JAVA_VERSION}-jre-jammy 
-FROM $BASE_IMAGE_RUNTIME
+FROM eclipse-temurin:${JAVA_VERSION}-jre-jammy
 
 ARG spark_uid=185
 ARG SPARK_VERSION=3.2.1
