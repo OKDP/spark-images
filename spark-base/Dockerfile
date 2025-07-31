@@ -85,16 +85,23 @@ RUN set -ex; \
     echo "Branch/Tag: $(git describe --tags --always)"; \
     echo "Remote origin: $(git remote get-url origin)"; \
     \
-    # Determine Hadoop profile and version
-    if [ "${HADOOP_VERSION}" = "3.2" ]; then \
+    # Determine Hadoop profile and version based on Spark version
+    if [ "${MAJOR_VERSION}" = "2" ]; then \
+        # Spark 2.x
+        HADOOP_PROFILE="hadoop-2.7"; \
+        HADOOP_VERSION_FULL="2.7.4"; \
+    elif [ "${MAJOR_VERSION}" = "3" ] && [ "${MINOR_VERSION}" -le "2" ]; then \
+        # Spark 3.0, 3.1, 3.2
         HADOOP_PROFILE="hadoop-3.2"; \
         HADOOP_VERSION_FULL="3.2.4"; \
-    elif [ "${HADOOP_VERSION}" = "3.3" ]; then \
-        HADOOP_PROFILE="hadoop-3.2"; \
-        HADOOP_VERSION_FULL="3.3.6"; \
+    elif [ "${MAJOR_VERSION}" = "3" ] && [ "${MINOR_VERSION}" -ge "3" ]; then \
+        # Spark 3.3, 3.4, 3.5
+        HADOOP_PROFILE="hadoop-3.3"; \
+        HADOOP_VERSION_FULL="3.3.4"; \
     else \
-        HADOOP_PROFILE="hadoop-3.2"; \
-        HADOOP_VERSION_FULL="${HADOOP_VERSION}.0"; \
+        # Default for Spark 4.x+
+        HADOOP_PROFILE="hadoop-3.3"; \
+        HADOOP_VERSION_FULL="3.3.6"; \
     fi; \
     \
     echo "=== BUILDING WITH HADOOP ${HADOOP_VERSION_FULL} AND SCALA ${SCALA_VERSION} ==="; \
