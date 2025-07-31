@@ -32,6 +32,7 @@ ENV SPARK_REPO_URL   ${SPARK_REPO_URL}
 # Install build dependencies
 RUN set -ex; \
     apt-get update; \
+    export DEBIAN_FRONTEND=noninteractive; \
     apt-get install -y --no-install-recommends \
         git \
         maven \
@@ -173,6 +174,7 @@ RUN groupadd --system --gid=${spark_uid} spark && \
 RUN set -ex; \
     apt-get update; \
     ln -s /lib /lib64; \
+    export DEBIAN_FRONTEND=noninteractive; \
     apt install -y --no-install-recommends \
         bash \
         tini \
