@@ -28,6 +28,25 @@ ENV HADOOP_VERSION   ${HADOOP_VERSION}
 ENV SCALA_VERSION    ${SCALA_VERSION}
 ENV SPARK_REPO_URL   ${SPARK_REPO_URL}
 
+# Configure Maven memory
+ENV MAVEN_OPTS="-Xss64m -Xmx2g -XX:ReservedCodeCacheSize=1g"
+
+# Define Spark build arguments
+ARG SPARK_BUILD_ARGS="\
+    --pip \
+    -Pkubernetes \
+    -Phadoop-cloud \
+    -Pscala-${SCALA_VERSION} \
+    -Dhadoop.version=${HADOOP_VERSION} \
+    -Pnetlib-lgpl \
+    -Phive \
+    -Phive-thriftserver \
+    -DskipTests \
+    -Dmaven.source.skip=true \
+    -Dmaven.site.skip=true \
+    -Dmaven.javadoc.skip=true \
+    -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B "
+
 # Install build dependencies
 RUN set -ex; \
     apt-get update; \
@@ -85,60 +104,30 @@ RUN set -ex; \
     echo "Branch/Tag: $(git describe --tags --always)"; \
     echo "Remote origin: $(git remote get-url origin)"; \
     \
-    # Determine Hadoop profile and version based on Spark version
-    if [ "${MAJOR_VERSION}" = "2" ]; then \
-        # Spark 2.x
-        HADOOP_PROFILE="hadoop-2.7"; \
-        HADOOP_VERSION_FULL="2.7.4"; \
-    elif [ "${MAJOR_VERSION}" = "3" ] && [ "${MINOR_VERSION}" -le "2" ]; then \
-        # Spark 3.0, 3.1, 3.2
-        HADOOP_PROFILE="hadoop-3.2"; \
+    # Determine Hadoop version for -Dhadoop.version
+    if [ "${HADOOP_VERSION}" = "3.2" ]; then \
         HADOOP_VERSION_FULL="3.2.4"; \
-    elif [ "${MAJOR_VERSION}" = "3" ] && [ "${MINOR_VERSION}" -ge "3" ]; then \
-        # Spark 3.3, 3.4, 3.5
-        HADOOP_PROFILE="hadoop-3.3"; \
+    elif [ "${HADOOP_VERSION}" = "3" ] || [ "${HADOOP_VERSION}" = "3.3" ]; then \
         HADOOP_VERSION_FULL="3.3.4"; \
     else \
-        # Default for Spark 4.x+
-        HADOOP_PROFILE="hadoop-3.3"; \
-        HADOOP_VERSION_FULL="3.3.6"; \
+        HADOOP_VERSION_FULL="${HADOOP_VERSION}.0"; \
     fi; \
     \
     echo "=== BUILDING WITH HADOOP ${HADOOP_VERSION_FULL} AND SCALA ${SCALA_VERSION} ==="; \
+    echo "Maven options: ${MAVEN_OPTS}"; \
     \
-    # Configure Maven memory
-    export MAVEN_OPTS="-Xmx3g -XX:ReservedCodeCacheSize=1g"; \
+    # Build Spark using the build arguments (remove --pip for mvn command)
+    BUILD_ARGS=$(echo "${SPARK_BUILD_ARGS}" | sed 's/--pip//g' | sed "s/\${SCALA_VERSION}/${SCALA_VERSION}/g" | sed "s/\${HADOOP_VERSION}/${HADOOP_VERSION_FULL}/g"); \
+    echo "Build arguments: ${BUILD_ARGS}"; \
     \
-    # Build profiles - adjust based on Spark version
-    BUILD_PROFILES="-Pyarn -P${HADOOP_PROFILE} -Phadoop-cloud -Phive -Phive-thriftserver"; \
-    \
-    # Add Kubernetes profile for versions that support it (3.0+)
-    if [ "${MAJOR_VERSION}" -ge "3" ]; then \
-        BUILD_PROFILES="${BUILD_PROFILES} -Pkubernetes"; \
-    fi; \
-    \
-    # Add Scala 2.13 profile if needed
-    if [ "${SCALA_VERSION}" = "2.13" ]; then \
-        BUILD_PROFILES="${BUILD_PROFILES} -Pscala-2.13 -Dscala-2.13"; \
-    fi; \
-    \
-    echo "Build profiles: ${BUILD_PROFILES}"; \
-    \
-    # Build Spark
-    ./build/mvn ${BUILD_PROFILES} \
-        -Dhadoop.version=${HADOOP_VERSION_FULL} \
-        -DskipTests clean package; \
+    ./build/mvn ${BUILD_ARGS} clean package; \
     \
     echo "=== CREATING SPARK DISTRIBUTION ==="; \
     \
-    # Create distribution
-    DIST_PROFILES="-P${HADOOP_PROFILE} -Phadoop-cloud -Phive -Phive-thriftserver"; \
-    if [ "${MAJOR_VERSION}" -ge "3" ]; then \
-        DIST_PROFILES="${DIST_PROFILES} -Pkubernetes"; \
-    fi; \
+    # Create distribution (include --pip here)
+    DIST_ARGS=$(echo "${SPARK_BUILD_ARGS}" | sed "s/\${SCALA_VERSION}/${SCALA_VERSION}/g" | sed "s/\${HADOOP_VERSION}/${HADOOP_VERSION_FULL}/g" | sed 's/-DskipTests//g' | sed 's/-Dmaven\.source\.skip=true//g' | sed 's/-Dmaven\.site\.skip=true//g' | sed 's/-Dmaven\.javadoc\.skip=true//g' | sed 's/-Dorg\.slf4j\.simpleLogger\.log\.org\.apache\.maven\.cli\.transfer\.Slf4jMavenTransferListener=warn//g' | sed 's/-B//g'); \
     \
-    ./dev/make-distribution.sh --name custom --pip --r --tgz ${DIST_PROFILES} \
-        -Dhadoop.version=${HADOOP_VERSION_FULL}; \
+    ./dev/make-distribution.sh --name custom --r --tgz ${DIST_ARGS}; \
     \
     # Move the built distribution
     mkdir -p /tmp/spark-dist; \
@@ -159,6 +148,9 @@ RUN set -ex; \
 # Final runtime image
 ARG JAVA_VERSION=11
 FROM eclipse-temurin:${JAVA_VERSION}-jre-jammy
+
+# Prevent interactive prompts during package installation
+ENV DEBIAN_FRONTEND=noninteractive
 
 ARG spark_uid=185
 ARG SPARK_VERSION=3.2.1
