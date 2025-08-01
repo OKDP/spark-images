@@ -31,22 +31,6 @@ ENV SPARK_REPO_URL   ${SPARK_REPO_URL}
 # Configure Maven memory
 ENV MAVEN_OPTS="-Xss64m -Xmx2g -XX:ReservedCodeCacheSize=1g"
 
-# Define Spark build arguments
-ARG SPARK_BUILD_ARGS="\
-    --pip \
-    -Pkubernetes \
-    -Phadoop-cloud \
-    -Pscala-${SCALA_VERSION} \
-    -Dhadoop.version=${HADOOP_VERSION} \
-    -Pnetlib-lgpl \
-    -Phive \
-    -Phive-thriftserver \
-    -DskipTests \
-    -Dmaven.source.skip=true \
-    -Dmaven.site.skip=true \
-    -Dmaven.javadoc.skip=true \
-    -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B "
-
 # Install build dependencies
 RUN set -ex; \
     apt-get update; \
@@ -116,18 +100,38 @@ RUN set -ex; \
     echo "=== BUILDING WITH HADOOP ${HADOOP_VERSION_FULL} AND SCALA ${SCALA_VERSION} ==="; \
     echo "Maven options: ${MAVEN_OPTS}"; \
     \
-    # Build Spark using the build arguments (remove --pip for mvn command)
-    BUILD_ARGS=$(echo "${SPARK_BUILD_ARGS}" | sed 's/--pip//g' | sed "s/\${SCALA_VERSION}/${SCALA_VERSION}/g" | sed "s/\${HADOOP_VERSION}/${HADOOP_VERSION_FULL}/g"); \
-    echo "Build arguments: ${BUILD_ARGS}"; \
-    \
-    ./build/mvn ${BUILD_ARGS} clean package; \
+    # Build Spark with correct Hadoop version
+    ./build/mvn \
+        -Pkubernetes \
+        -Phadoop-cloud \
+        -Pscala-${SCALA_VERSION} \
+        -Dhadoop.version=${HADOOP_VERSION_FULL} \
+        -Pnetlib-lgpl \
+        -Phive \
+        -Phive-thriftserver \
+        -DskipTests \
+        -Dmaven.source.skip=true \
+        -Dmaven.site.skip=true \
+        -Dmaven.javadoc.skip=true \
+        -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
+        -B \
+        clean package; \
     \
     echo "=== CREATING SPARK DISTRIBUTION ==="; \
     \
-    # Create distribution (include --pip here)
-    DIST_ARGS=$(echo "${SPARK_BUILD_ARGS}" | sed "s/\${SCALA_VERSION}/${SCALA_VERSION}/g" | sed "s/\${HADOOP_VERSION}/${HADOOP_VERSION_FULL}/g" | sed 's/-DskipTests//g' | sed 's/-Dmaven\.source\.skip=true//g' | sed 's/-Dmaven\.site\.skip=true//g' | sed 's/-Dmaven\.javadoc\.skip=true//g' | sed 's/-Dorg\.slf4j\.simpleLogger\.log\.org\.apache\.maven\.cli\.transfer\.Slf4jMavenTransferListener=warn//g' | sed 's/-B//g'); \
-    \
-    ./dev/make-distribution.sh --name custom --r --tgz ${DIST_ARGS}; \
+    # Create distribution
+    ./dev/make-distribution.sh \
+        --name custom \
+        --pip \
+        --r \
+        --tgz \
+        -Pkubernetes \
+        -Phadoop-cloud \
+        -Pscala-${SCALA_VERSION} \
+        -Dhadoop.version=${HADOOP_VERSION_FULL} \
+        -Pnetlib-lgpl \
+        -Phive \
+        -Phive-thriftserver; \
     \
     # Move the built distribution
     mkdir -p /tmp/spark-dist; \
