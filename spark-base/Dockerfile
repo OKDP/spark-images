@@ -127,7 +127,7 @@ RUN set -ex; \
         -Pkubernetes \
         -Phadoop-cloud \
         -Pscala-${SCALA_VERSION} \
-        -Dhadoop.version=${HADOOP_VERSION_FULL} \
+        -Dhadoop.version=${HADOOP_VERSION} \
         -Pnetlib-lgpl \
         -Phive \
         -Phive-thriftserver; \
