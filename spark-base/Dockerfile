@@ -88,16 +88,16 @@ RUN set -ex; \
     echo "Branch/Tag: $(git describe --tags --always)"; \
     echo "Remote origin: $(git remote get-url origin)"; \
     \
-    # Determine Hadoop version for -Dhadoop.version
-    if [ "${HADOOP_VERSION}" = "3.2" ]; then \
-        HADOOP_VERSION_FULL="3.2.4"; \
-    elif [ "${HADOOP_VERSION}" = "3" ] || [ "${HADOOP_VERSION}" = "3.3" ]; then \
-        HADOOP_VERSION_FULL="3.3.4"; \
-    else \
-        HADOOP_VERSION_FULL="${HADOOP_VERSION}.0"; \
-    fi; \
-    \
-    echo "=== BUILDING WITH HADOOP ${HADOOP_VERSION_FULL} AND SCALA ${SCALA_VERSION} ==="; \
+    # # Determine Hadoop version for -Dhadoop.version
+    # if [ "${HADOOP_VERSION}" = "3.2" ]; then \
+    #     HADOOP_VERSION_FULL="3.2.4"; \
+    # elif [ "${HADOOP_VERSION}" = "3" ] || [ "${HADOOP_VERSION}" = "3.3" ]; then \
+    #     HADOOP_VERSION_FULL="3.3.4"; \
+    # else \
+    #     HADOOP_VERSION_FULL="${HADOOP_VERSION}.0"; \
+    # fi; \
+    # \
+    echo "=== BUILDING WITH HADOOP ${HADOOP_VERSION} AND SCALA ${SCALA_VERSION} ==="; \
     echo "Maven options: ${MAVEN_OPTS}"; \
     \
     # Build Spark with correct Hadoop version
@@ -105,7 +105,7 @@ RUN set -ex; \
         -Pkubernetes \
         -Phadoop-cloud \
         -Pscala-${SCALA_VERSION} \
-        -Dhadoop.version=${HADOOP_VERSION_FULL} \
+        -Dhadoop.version=${HADOOP_VERSION} \
         -Pnetlib-lgpl \
         -Phive \
         -Phive-thriftserver \
@@ -123,7 +123,6 @@ RUN set -ex; \
     ./dev/make-distribution.sh \
         --name custom \
         --pip \
-        --r \
         --tgz \
         -Pkubernetes \
         -Phadoop-cloud \
