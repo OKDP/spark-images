@@ -18,8 +18,8 @@ ARG JAVA_VERSION=11
 FROM eclipse-temurin:${JAVA_VERSION}-jdk-jammy AS spark_builder
 
 ARG spark_uid=185
-ARG SPARK_VERSION=3.2.1
-ARG HADOOP_VERSION=3.2
+ARG SPARK_VERSION=3.2.4
+ARG HADOOP_VERSION=3.3.6
 ARG SCALA_VERSION=2.12
 ARG SPARK_REPO_URL=https://github.com/apache/spark.git
 
@@ -137,7 +137,7 @@ RUN set -ex; \
     mv spark-*.tgz /tmp/spark-dist/spark-custom.tgz; \
     cd /tmp/spark-dist; \
     tar -xzf spark-custom.tgz; \
-    mv spark-* spark-built; \
+    mv spark-*-bin-custom spark-built; \
     \
     echo "=== SPARK BUILD COMPLETED ==="; \
     echo "Built Spark version: $(cat spark-built/RELEASE | head -1)"; \
@@ -156,8 +156,8 @@ FROM eclipse-temurin:${JAVA_VERSION}-jre-jammy
 ENV DEBIAN_FRONTEND=noninteractive
 
 ARG spark_uid=185
-ARG SPARK_VERSION=3.2.1
-ARG HADOOP_VERSION=3.2
+ARG SPARK_VERSION=3.2.4
+ARG HADOOP_VERSION=3.3.6
 ARG SCALA_VERSION=2.12
 ARG SPARK_REPO_URL=https://github.com/apache/spark.git
 
