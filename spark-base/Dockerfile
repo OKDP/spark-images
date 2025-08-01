@@ -173,20 +173,11 @@ RUN set -ex; \
     apt-get update; \
     ln -s /lib /lib64; \
     export DEBIAN_FRONTEND=noninteractive; \
-    apt install -y --no-install-recommends \
-        bash \
-        tini \
-        libc6 \
-        libpam-modules \
-        krb5-user \
-        libnss3 \
-        procps \
-        net-tools \
-        gosu \
-        libnss-wrapper \
-        curl \
-        python3 \
-        python3-pip; \
+    # Install packages in smaller batches for ARM64 compatibility
+    apt install -y --no-install-recommends bash tini libc6; \
+    apt install -y --no-install-recommends libpam-modules krb5-user libnss3; \
+    apt install -y --no-install-recommends procps net-tools gosu libnss-wrapper; \
+    apt install -y --no-install-recommends curl python3 python3-pip; \
     mkdir -p ${SPARK_HOME}; \
     mkdir -p ${SPARK_HOME}/work-dir; \
     chmod g+w ${SPARK_HOME}/work-dir; \
