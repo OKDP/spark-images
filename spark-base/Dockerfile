@@ -18,7 +18,7 @@ ARG JAVA_VERSION=11
 FROM eclipse-temurin:${JAVA_VERSION}-jdk-jammy AS spark_builder
 
 ARG spark_uid=185
-ARG SPARK_VERSION=3.2.4
+ARG SPARK_VERSION=3.5.1
 ARG HADOOP_VERSION=3.3.6
 ARG SCALA_VERSION=2.12
 ARG SPARK_REPO_URL=https://github.com/apache/spark.git
@@ -156,7 +156,7 @@ FROM eclipse-temurin:${JAVA_VERSION}-jre-jammy
 ENV DEBIAN_FRONTEND=noninteractive
 
 ARG spark_uid=185
-ARG SPARK_VERSION=3.2.4
+ARG SPARK_VERSION=3.5.1
 ARG HADOOP_VERSION=3.3.6
 ARG SCALA_VERSION=2.12
 ARG SPARK_REPO_URL=https://github.com/apache/spark.git
