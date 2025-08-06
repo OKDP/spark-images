@@ -71,7 +71,7 @@ on:
         description: 'Enable patch'
         required: false
         type: boolean
-        default: false
+        default: true
 
 jobs:
   

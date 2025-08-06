@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-ARG JAVA_VERSION=11
+ARG JAVA_VERSION=17
 FROM eclipse-temurin:${JAVA_VERSION}-jdk-jammy AS spark_builder
 
 ARG spark_uid=185
@@ -29,7 +29,8 @@ ENV SCALA_VERSION    ${SCALA_VERSION}
 ENV SPARK_REPO_URL   ${SPARK_REPO_URL}
 
 # Configure Maven memory
-ENV MAVEN_OPTS="-Xss64m -Xmx2g -XX:ReservedCodeCacheSize=1g"
+# ENV MAVEN_OPTS="-Xss64m -Xmx2g -XX:ReservedCodeCacheSize=1g"
+ENV MAVEN_OPTS="-Xss64m -Xmx3g -XX:ReservedCodeCacheSize=1g"
 
 # Install build dependencies
 RUN set -ex; \
@@ -55,53 +56,54 @@ RUN set -ex; \
         libnss-wrapper; \
     rm -rf /var/cache/apt/* && rm -rf /var/lib/apt/lists/*
 
+# Copy everything from build context, including patches if they exist
+COPY . /tmp/build-context/
+
 # Download and build Spark from source
 RUN set -ex; \
     export WORK_DIR="$(mktemp -d)"; \
     cd ${WORK_DIR}; \
     \
     echo "=== BUILDING SPARK ${SPARK_VERSION} FROM SOURCE ==="; \
-    echo "Repository: ${SPARK_REPO_URL}"; \
     \
-    # Determine branch/tag based on version
-    MAJOR_VERSION=$(echo ${SPARK_VERSION} | cut -d. -f1); \
-    MINOR_VERSION=$(echo ${SPARK_VERSION} | cut -d. -f2); \
-    PATCH_VERSION=$(echo ${SPARK_VERSION} | cut -d. -f3); \
-    \
-    # Use exact tag if patch version exists, otherwise use branch
-    if [ -n "${PATCH_VERSION}" ] && [ "${PATCH_VERSION}" != "0" ]; then \
-        BRANCH="v${SPARK_VERSION}"; \
-        echo "Using tag: ${BRANCH}"; \
+    # Check if patched files exist and are not empty
+    if [ -d "/tmp/build-context/patched-spark-files" ] && [ "$(ls -A /tmp/build-context/patched-spark-files 2>/dev/null)" ]; then \
+        echo "=== USING PATCHED SPARK SOURCE FILES ==="; \
+        echo "Found patched source files, using them instead of cloning"; \
+        cp -r /tmp/build-context/patched-spark-files spark-source; \
+        cd spark-source; \
+        chmod +x build/mvn dev/make-distribution.sh; \
+        echo "Patched Spark source ready for build"; \
     else \
-        BRANCH="branch-${MAJOR_VERSION}.${MINOR_VERSION}"; \
-        echo "Using branch: ${BRANCH}"; \
+        echo "=== CLONING SPARK REPOSITORY ==="; \
+        echo "Repository: ${SPARK_REPO_URL}"; \
+        echo "Version: ${SPARK_VERSION}"; \
+        \
+        # Simple clone - same as patch action approach
+        git clone --depth 1 --branch v${SPARK_VERSION} ${SPARK_REPO_URL} spark-source; \
+        cd spark-source; \
+        echo "Spark v${SPARK_VERSION} cloned successfully"; \
     fi; \
     \
-    echo "=== CLONING SPARK REPOSITORY ==="; \
-    # Shallow clone of specific branch/tag for efficiency
-    git clone --depth 1 --branch ${BRANCH} ${SPARK_REPO_URL} spark-source; \
-    cd spark-source; \
-    \
     echo "=== REPOSITORY INFO ==="; \
-    echo "Repository URL: ${SPARK_REPO_URL}"; \
-    echo "Current commit: $(git rev-parse HEAD)"; \
-    echo "Branch/Tag: $(git describe --tags --always)"; \
-    echo "Remote origin: $(git remote get-url origin)"; \
+    echo "Current working directory: $(pwd)"; \
+    echo "Source type: $(if [ -d '.git' ]; then echo 'Git repository'; else echo 'Patched source files'; fi)"; \
+    if [ -d '.git' ]; then \
+        echo "Repository URL: ${SPARK_REPO_URL}"; \
+        echo "Current commit: $(git rev-parse HEAD)"; \
+        echo "Branch/Tag: $(git describe --tags --always)"; \
+        echo "Remote origin: $(git remote get-url origin)"; \
+    else \
+        echo "Using patched source files (not a git repository)"; \
+    fi; \
     \
-    # # Determine Hadoop version for -Dhadoop.version
-    # if [ "${HADOOP_VERSION}" = "3.2" ]; then \
-    #     HADOOP_VERSION_FULL="3.2.4"; \
-    # elif [ "${HADOOP_VERSION}" = "3" ] || [ "${HADOOP_VERSION}" = "3.3" ]; then \
-    #     HADOOP_VERSION_FULL="3.3.4"; \
-    # else \
-    #     HADOOP_VERSION_FULL="${HADOOP_VERSION}.0"; \
-    # fi; \
-    # \
+    # Rest of build process...
     echo "=== BUILDING WITH HADOOP ${HADOOP_VERSION} AND SCALA ${SCALA_VERSION} ==="; \
     echo "Maven options: ${MAVEN_OPTS}"; \
     \
-    # Build Spark with correct Hadoop version
+    # Build Spark...
     ./build/mvn \
+        -T 2C \
         -Pkubernetes \
         -Phadoop-cloud \
         -Pscala-${SCALA_VERSION} \
@@ -114,12 +116,12 @@ RUN set -ex; \
         -Dmaven.site.skip=true \
         -Dmaven.javadoc.skip=true \
         -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
+        -Dmaven.compile.fork=true \
+        -Dmaven.compiler.maxmem=2g \
         -B \
         clean package; \
     \
-    echo "=== CREATING SPARK DISTRIBUTION ==="; \
-    \
-    # Create distribution
+    # Create distribution...
     ./dev/make-distribution.sh \
         --name custom \
         --pip \
@@ -141,15 +143,12 @@ RUN set -ex; \
     \
     echo "=== SPARK BUILD COMPLETED ==="; \
     echo "Built Spark version: $(cat spark-built/RELEASE | head -1)"; \
-    echo "Built from commit: $(cd ${WORK_DIR}/spark-source && git rev-parse HEAD)"; \
-    echo "Repository: ${SPARK_REPO_URL}"; \
     ls -la /tmp/spark-dist/; \
     \
-    # Clean up build directory
     rm -rf ${WORK_DIR}
 
 # Final runtime image
-ARG JAVA_VERSION=11
+ARG JAVA_VERSION=17
 FROM eclipse-temurin:${JAVA_VERSION}-jre-jammy
 
 # Prevent interactive prompts during package installation
