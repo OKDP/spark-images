@@ -41,7 +41,6 @@ RUN set -ex; \
         maven \
         python3 \
         python3-pip \
-        r-base \
         build-essential \
         curl \
         bash \

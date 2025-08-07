@@ -32,6 +32,13 @@ RUN set -ex; \
     apt-get install -y --no-install-recommends r-base r-base-dev; \
     rm -rf /var/lib/apt/lists/*
 
+# debug    
+RUN which R                                   # R executable exists
+RUN R --version                               # R version
+RUN ls -la /opt/spark/jars/ | grep -i sparkr  # SparkR JAR files
+RUN ls -la /opt/spark/R/                      # SparkR library directory
+# end debug
+
 ENV R_HOME /usr/lib/R
 
 USER spark

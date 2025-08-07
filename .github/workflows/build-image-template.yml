@@ -78,6 +78,7 @@ jobs:
   build-test-push:
     name: ${{ inputs.image }} (scala-${{ inputs.scala_version }}, java-${{ inputs.java_version }}, python-${{ inputs.python_version }}, hadoop-${{ inputs.hadoop_version }})
     runs-on: ${{ inputs.runs-on }}
+    timeout-minutes: 480  # increase timeout due to linux/arm64 platform build time
     steps:
 
       ### The publish and periodic rebuilds are based on the latest stable github release tag
@@ -219,8 +220,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ${{ inputs.image }}
-          # platforms: linux/amd64,linux/arm64
-          platforms: linux/amd64        
+          platforms: linux/amd64,linux/arm64   
           push: true
           build-args: |
             SPARK_VERSION=${{ inputs.spark_version}}
