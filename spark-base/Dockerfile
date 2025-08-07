@@ -52,7 +52,9 @@ RUN set -ex; \
         procps \
         net-tools \
         gosu \
-        libnss-wrapper; \
+        libnss-wrapper \
+        r-base \        
+        r-base-dev; \        
     rm -rf /var/cache/apt/* && rm -rf /var/lib/apt/lists/*
 
 # Copy everything from build context, including patches if they exist
@@ -107,9 +109,9 @@ RUN set -ex; \
         -Phadoop-cloud \
         -Pscala-${SCALA_VERSION} \
         -Dhadoop.version=${HADOOP_VERSION} \
-        -Pnetlib-lgpl \
         -Phive \
         -Phive-thriftserver \
+        -Psparkr \          
         -DskipTests \
         -Dmaven.source.skip=true \
         -Dmaven.site.skip=true \
@@ -129,9 +131,9 @@ RUN set -ex; \
         -Phadoop-cloud \
         -Pscala-${SCALA_VERSION} \
         -Dhadoop.version=${HADOOP_VERSION} \
-        -Pnetlib-lgpl \
         -Phive \
-        -Phive-thriftserver; \
+        -Phive-thriftserver \
+        -Psparkr; \          
     \
     # Move the built distribution
     mkdir -p /tmp/spark-dist; \
