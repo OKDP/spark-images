@@ -4,30 +4,34 @@ controls:
     java_version: "11"
     hadoop_version: "3.3.6"
     patch_files:
+      - log4j-fix.patch
       - scala-plugin-fix.patch
   - spark_version: "3.2.2"
     python_version: "3.9"
     java_version: "11"
     hadoop_version: "3.3.6"
     patch_files:
-      - scala-plugin-fix.patch
+      - log4j-fix.patch
+      - scala-plugin-fix.patch  
   - spark_version: "3.2.3"
     python_version: "3.9"
     java_version: "11"
     hadoop_version: "3.3.6"
     patch_files:
-      - log4j-fix.patch               
+      - log4j-fix.patch
+      - scala-plugin-fix.patch                    
   - spark_version: "3.2.4"
     python_version: "3.9"
     java_version: "11"
     hadoop_version: "3.3.6"
     patch_files:
       - log4j-fix.patch
-  - spark_version: "3.5.1"
-    python_version: "3.11"
-    java_version: "17"
-    hadoop_version: "3.3.6"
-    patch_files:
-      - aws-sdk-bump.patch
-      - bump-packages.patch
-      - path-update-scripts.patch
+      - scala-plugin-fix.patch      
+  # - spark_version: "3.5.1"
+  #   python_version: "3.11"
+  #   java_version: "17"
+  #   hadoop_version: "3.3.6"
+  #   patch_files:
+  #     - aws-sdk-bump.patch
+  #     - bump-packages.patch
+  #     - path-update-scripts.patch
