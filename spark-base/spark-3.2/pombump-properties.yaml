@@ -1,4 +1,8 @@
 properties:
+  # Override Scala Maven Plugin for Hadoop 3.x compatibility
+  - property: scala-maven-plugin.version
+    # renovate: datasource=maven depName=org.scala-tools:scala-maven-plugin versioning=maven
+    value: "4.8.1"
   - property: hadoop.version
     # renovate: datasource=maven depName=org.apache.hadoop:hadoop-common versioning=maven
     value: "3.3.6"
