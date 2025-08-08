@@ -1,4 +1,22 @@
 controls:
+  - spark_version: "3.2.1"
+    python_version: "3.9"
+    java_version: "11"
+    hadoop_version: "3.3.6"
+    patch_files:
+      - scala-plugin-fix.patch
+  - spark_version: "3.2.2"
+    python_version: "3.9"
+    java_version: "11"
+    hadoop_version: "3.3.6"
+    patch_files:
+      - scala-plugin-fix.patch
+  - spark_version: "3.2.3"
+    python_version: "3.9"
+    java_version: "11"
+    hadoop_version: "3.3.6"
+    patch_files:
+      - log4j-fix.patch               
   - spark_version: "3.2.4"
     python_version: "3.9"
     java_version: "11"
