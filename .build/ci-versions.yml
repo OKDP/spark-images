@@ -46,6 +46,6 @@ versions:
   - python_version: 3.11
     spark_version: [3.5.1]
     java_version: [17]
-    scala_version: [2.133]
+    scala_version: [2.13]
     hadoop_version: 3.3.6
 
