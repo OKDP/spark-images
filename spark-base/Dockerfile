@@ -14,13 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-ARG JAVA_VERSION=17
+ARG JAVA_VERSION=11
 FROM eclipse-temurin:${JAVA_VERSION}-jdk-jammy AS spark_builder
 
 ARG spark_uid=185
-ARG SPARK_VERSION=3.2.4
+ARG SPARK_VERSION=3.5.1
 ARG HADOOP_VERSION=3.3.6
-ARG SCALA_VERSION=2.12
+ARG SCALA_VERSION=2.13
 ARG SPARK_REPO_URL=https://github.com/apache/spark.git
 
 ENV SPARK_VERSION    ${SPARK_VERSION}
@@ -31,6 +31,21 @@ ENV SPARK_REPO_URL   ${SPARK_REPO_URL}
 # Configure Maven memory
 # ENV MAVEN_OPTS="-Xss64m -Xmx2g -XX:ReservedCodeCacheSize=1g"
 ENV MAVEN_OPTS="-Xss64m -Xmx3g -XX:ReservedCodeCacheSize=1g"
+ARG SPARK_BUILD_ARGS="\
+    --name custom \
+    --pip \
+    -Pkubernetes \
+    -Phadoop-cloud \
+    -Pscala-${SCALA_VERSION} \
+    -Dhadoop.version=${HADOOP_VERSION} \
+    -Phive \
+    -Phive-thriftserver \
+    -DskipTests \
+    -Dmaven.source.skip=true \
+    -Dmaven.site.skip=true \
+    -Dmaven.javadoc.skip=true \
+    -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B \
+    -Psparkr "
 
 # Install build dependencies
 RUN set -ex; \
@@ -98,43 +113,10 @@ RUN set -ex; \
         echo "Using patched source files (not a git repository)"; \
     fi; \
     \
-    # Rest of build process...
-    echo "=== BUILDING WITH HADOOP ${HADOOP_VERSION} AND SCALA ${SCALA_VERSION} ==="; \
-    echo "Maven options: ${MAVEN_OPTS}"; \
-    \
-    # Build Spark...
-    ./build/mvn \
-        -T 2C \
-        -Pkubernetes \
-        -Phadoop-cloud \
-        -Pscala-${SCALA_VERSION} \
-        -Dhadoop.version=${HADOOP_VERSION} \
-        -Phive \
-        -Phive-thriftserver \
-        -Psparkr \          
-        -DskipTests \
-        -Dmaven.source.skip=true \
-        -Dmaven.site.skip=true \
-        -Dmaven.javadoc.skip=true \
-        -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
-        -Dmaven.compile.fork=true \
-        -Dmaven.compiler.maxmem=2g \
-        -B \
-        clean package; \
-    \
+
     # Create distribution...
-    ./dev/make-distribution.sh \
-        --name custom \
-        --pip \
-        --tgz \
-        -Pkubernetes \
-        -Phadoop-cloud \
-        -Pscala-${SCALA_VERSION} \
-        -Dhadoop.version=${HADOOP_VERSION} \
-        -Phive \
-        -Phive-thriftserver \
-        -Psparkr; \          
-    \
+    ./dev/make-distribution.sh ${SPARK_BUILD_ARGS}; \    
+
     # Move the built distribution
     mkdir -p /tmp/spark-dist; \
     mv spark-*.tgz /tmp/spark-dist/spark-custom.tgz; \
@@ -149,16 +131,16 @@ RUN set -ex; \
     rm -rf ${WORK_DIR}
 
 # Final runtime image
-ARG JAVA_VERSION=17
+ARG JAVA_VERSION=11
 FROM eclipse-temurin:${JAVA_VERSION}-jre-jammy
 
 # Prevent interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
 
 ARG spark_uid=185
-ARG SPARK_VERSION=3.2.4
+ARG SPARK_VERSION=3.5.1
 ARG HADOOP_VERSION=3.3.6
-ARG SCALA_VERSION=2.12
+ARG SCALA_VERSION=2.13
 ARG SPARK_REPO_URL=https://github.com/apache/spark.git
 
 ENV SPARK_HOME       /opt/spark

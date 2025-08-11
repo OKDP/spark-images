@@ -23,11 +23,11 @@ controls:
     hadoop_version: "3.3.6"
     patch_files:
       - log4j-fix.patch      
-  # - spark_version: "3.5.1"
-  #   python_version: "3.11"
-  #   java_version: "17"
-  #   hadoop_version: "3.3.6"
-  #   patch_files:
-  #     - aws-sdk-bump.patch
-  #     - bump-packages.patch
-  #     - path-update-scripts.patch
+  - spark_version: "3.5.1"
+    python_version: "3.11"
+    java_version: "17"
+    hadoop_version: "3.3.6"
+    patch_files:
+      - aws-sdk-bump.patch
+      - bump-packages.patch
+      - path-update-scripts.patch
