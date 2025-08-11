@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-ARG JAVA_VERSION=11
+ARG JAVA_VERSION=17
 FROM eclipse-temurin:${JAVA_VERSION}-jdk-jammy AS spark_builder
 
 ARG spark_uid=185
@@ -95,30 +95,20 @@ RUN set -ex; \
         echo "=== CLONING SPARK REPOSITORY ==="; \
         echo "Repository: ${SPARK_REPO_URL}"; \
         echo "Version: ${SPARK_VERSION}"; \
-        \
-        # Simple clone - same as patch action approach
         git clone --depth 1 --branch v${SPARK_VERSION} ${SPARK_REPO_URL} spark-source; \
         cd spark-source; \
         echo "Spark v${SPARK_VERSION} cloned successfully"; \
     fi; \
-    \
-    echo "=== REPOSITORY INFO ==="; \
-    echo "Current working directory: $(pwd)"; \
-    echo "Source type: $(if [ -d '.git' ]; then echo 'Git repository'; else echo 'Patched source files'; fi)"; \
-    if [ -d '.git' ]; then \
-        echo "Repository URL: ${SPARK_REPO_URL}"; \
-        echo "Current commit: $(git rev-parse HEAD)"; \
-        echo "Branch/Tag: $(git describe --tags --always)"; \
-        echo "Remote origin: $(git remote get-url origin)"; \
-    else \
-        echo "Using patched source files (not a git repository)"; \
+    echo "=== CONFIGURING SCALA VERSION ==="; \
+    echo "Target Scala version: ${SCALA_VERSION}"; \
+    if [ "${SCALA_VERSION}" = "2.13" ]; then \
+        echo "Switching to Scala 2.13 using official script"; \
+        ./dev/change-scala-version.sh 2.13; \
+        echo "✅ Scala version changed to 2.13"; \
     fi; \
     \
-
-    # Create distribution...
+    echo "=== BUILDING SPARK DISTRIBUTION ==="; \
     ./dev/make-distribution.sh ${SPARK_BUILD_ARGS}; \    
-
-    # Move the built distribution
     mkdir -p /tmp/spark-dist; \
     mv spark-*.tgz /tmp/spark-dist/spark-custom.tgz; \
     cd /tmp/spark-dist; \
@@ -132,7 +122,7 @@ RUN set -ex; \
     rm -rf ${WORK_DIR}
 
 # Final runtime image
-ARG JAVA_VERSION=11
+ARG JAVA_VERSION=17
 FROM eclipse-temurin:${JAVA_VERSION}-jre-jammy
 
 # Prevent interactive prompts during package installation
