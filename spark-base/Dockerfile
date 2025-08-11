@@ -34,6 +34,7 @@ ENV MAVEN_OPTS="-Xss64m -Xmx3g -XX:ReservedCodeCacheSize=1g"
 ARG SPARK_BUILD_ARGS="\
     --name custom \
     --pip \
+    --tgz \
     -Pkubernetes \
     -Phadoop-cloud \
     -Pscala-${SCALA_VERSION} \
