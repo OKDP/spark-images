@@ -34,7 +34,6 @@ ENV MAVEN_OPTS="-Xss64m -Xmx3g -XX:ReservedCodeCacheSize=1g"
 ARG SPARK_BUILD_ARGS="\
     --name custom \
     --pip \
-    --tgz \
     -Pkubernetes \
     -Phadoop-cloud \
     -Pscala-${SCALA_VERSION} \
@@ -110,13 +109,10 @@ RUN set -ex; \
     echo "=== BUILDING SPARK DISTRIBUTION ==="; \
     ./dev/make-distribution.sh ${SPARK_BUILD_ARGS}; \    
     mkdir -p /tmp/spark-dist; \
-    mv spark-*.tgz /tmp/spark-dist/spark-custom.tgz; \
-    cd /tmp/spark-dist; \
-    tar -xzf spark-custom.tgz; \
-    mv spark-*-bin-custom spark-built; \
+    mv dist /tmp/spark-dist/spark-built; \
     \
     echo "=== SPARK BUILD COMPLETED ==="; \
-    echo "Built Spark version: $(cat spark-built/RELEASE | head -1)"; \
+    echo "Built Spark version: $(cat /tmp/spark-dist/spark-built/RELEASE | head -1)"; \
     ls -la /tmp/spark-dist/; \
     \
     rm -rf ${WORK_DIR}
