@@ -57,6 +57,23 @@ The images are pushed to [quay.io/okdp](https://quay.io/organization/okdp) repos
 >    An example of `py-spark` image with the latest tag is: `quay.io/okdp/spark-py:spark-3.5.1-python-3.11-scala-2.13-java-17`
 >
 
+# Patching System
+
+This project automatically applies security fixes and dependency updates to Spark source code during builds.
+
+**Key Features:**
+- ✅ **Security patches** - Log4j vulnerability fixes
+- ✅ **Dependency updates** - AWS SDK, Guava, Netty bumps  
+- ✅ **Build compatibility** - Path and script fixes
+- ✅ **Version-specific** - Different patches per Spark version
+
+📖 **[Read the full patching documentation →](PATCH.md)**
+
+**Quick Reference:**
+- Patch configuration: [`.build/pre-build-patch.yml`](.build/pre-build-patch.yml)
+- Patch files: [`spark-base/spark-X.Y/`](spark-base/)
+- Application logic: [`.github/actions/patch/`](.github/actions/patch/)
+
 # Alternatives
 
 - [Official images](https://github.com/apache/spark-docker)
