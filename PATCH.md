@@ -29,6 +29,7 @@ spark-base/
   spark-3.2/
     ├── log4j-fix.patch
     └── pombump-properties.yaml
+    └── pombump-deps.yaml    
 ```
 
 #### 3. Patch Application Process
@@ -98,9 +99,9 @@ To add a new patch:
 1. **Create the patch file** in the appropriate `spark-base/spark-X.Y/` directory
 2. **Add the configuration** to `.build/pre-build-patch.yml`:
    ```yaml
-   - spark_version: "3.5.1"
+   - spark_version: "3.2.4"
      python_version: "3.11" 
-     java_version: "17"
+     java_version: "11"
      hadoop_version: "3.3.6"
      patch_files:
        - your-new-patch.patch
