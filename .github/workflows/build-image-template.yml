@@ -67,8 +67,8 @@ on:
         description: GitHub Actions Runner image
         required: true
         type: string
-      enable_patch:
-        description: 'Enable patch'
+      enable_patch_pombump:
+        description: 'Enable patch-pombump'
         required: false
         type: boolean
         default: true
@@ -129,9 +129,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Apply patch
-        uses: ./.github/actions/patch
-        if: inputs.image == 'spark-base' && inputs.enable_patch == true
+      - name: Apply patch and pombump
+        uses: ./.github/actions/patch-pombump
+        if: inputs.image == 'spark-base' && inputs.enable_patch_pombump == true
         with:
           image: ${{ inputs.image }}
           spark_version: ${{ inputs.spark_version }}

@@ -57,22 +57,63 @@ The images are pushed to [quay.io/okdp](https://quay.io/organization/okdp) repos
 >    An example of `py-spark` image with the latest tag is: `quay.io/okdp/spark-py:spark-3.5.1-python-3.11-scala-2.13-java-17`
 >
 
-# Patching System
+# Patching and Dependency Management System
 
-This project automatically applies security fixes and dependency updates to Spark source code during builds.
+This project automatically applies security fixes and dependency updates to Spark source code during builds using a sophisticated patch and pombump system.
 
 **Key Features:**
-- ✅ **Security patches** 
-- ✅ **Dependency updates**
-- ✅ **Build compatibility**
-- ✅ **Version-specific**
+- ✅ **Source code patches** for critical security fixes
+- ✅ **Automated dependency updates** via pombump
+- ✅ **Version-specific configurations** 
+- ✅ **Build optimization** and compatibility
 
-📖 **[Read the full patching documentation →](PATCH.md)**
+## How It Works
+
+### Configuration-Based Processing
+
+The system uses `.build/pre-build-patch-pombump.yml` to determine which Spark versions should receive patches and/or dependency updates:
+
+```yaml
+controls:
+  - spark_version: "3.4.1"
+    python_version: "3.11"
+    java_version: "17"
+    hadoop_version: "3.3.6"
+    patch_files: []  # No source patches needed, but pombump will run
+```
+
+### Processing Logic
+
+**If a Spark version is present in the configuration file:**
+
+1. **Source Download**: The system downloads the Spark source code
+2. **Patch Application**: Applies any source code patches (if `patch_files` is not empty)
+3. **Dependency Updates**: Runs pombump to update Maven dependencies to secure versions
+4. **Build Context**: Uses the patched/updated source for Docker builds
+
+**If a Spark version is not in the configuration:**
+- Uses original Spark distribution without modifications
+
+### Pombump Dependency Management
+
+For versions in the configuration, pombump automatically updates dependencies to secure versions:
+
+```yaml
+# From pombump-properties.yaml
+- property: log4j.version
+  value: "2.25.0"  # Updates to secure Log4j version
+- property: fasterxml.jackson.version  
+  value: "2.14.2"  # Updates Jackson for security
+```
+
+This ensures all builds use the latest secure dependency versions, even without source code changes.
+
+📖 **[Read the full patching documentation →](PATCH-POMBUMP.md)**
 
 **Quick Reference:**
-- Patch configuration: [`.build/pre-build-patch.yml`](.build/pre-build-patch.yml)
+- Patch configuration: [`.build/pre-build-patch-pombump.yml`](.build/pre-build-patch-pombump.yml)
 - Patch files: [`spark-base/spark-X.Y/`](spark-base/)
-- Application logic: [`.github/actions/patch/`](.github/actions/patch/)
+- Application logic: [`.github/actions/patch-pombump/`](.github/actions/patch-pombump/)
 
 # Alternatives
 

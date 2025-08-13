@@ -28,9 +28,9 @@ ENV HADOOP_VERSION   ${HADOOP_VERSION}
 ENV SCALA_VERSION    ${SCALA_VERSION}
 ENV SPARK_REPO_URL   ${SPARK_REPO_URL}
 
-# Configure Maven memory
+# Configure Maven memory - increased for larger builds
 # ENV MAVEN_OPTS="-Xss64m -Xmx2g -XX:ReservedCodeCacheSize=1g"
-ENV MAVEN_OPTS="-Xss64m -Xmx3g -XX:ReservedCodeCacheSize=1g"
+ENV MAVEN_OPTS="-Xss64m -Xmx4g -XX:ReservedCodeCacheSize=1g -XX:+UseG1GC -XX:G1HeapRegionSize=16m"
 ARG SPARK_BUILD_ARGS="\
     --name custom \
     --pip \
@@ -45,7 +45,8 @@ ARG SPARK_BUILD_ARGS="\
     -Dmaven.site.skip=true \
     -Dmaven.javadoc.skip=true \
     -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B \
-    -Psparkr "
+    -Psparkr \
+    -T 2C "
 
 # Install build dependencies
 RUN set -ex; \

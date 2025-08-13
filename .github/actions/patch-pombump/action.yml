@@ -1,5 +1,5 @@
-name: Patch Spark Source
-description: Apply patches to Spark source files
+name: Patch and POMBump Spark Source
+description: Apply source patches and dependency updates to Spark source files using pombump
 inputs:
   image:
     description: Image name
@@ -34,7 +34,7 @@ runs:
       id: read_patch
       run: |
         set -x        
-        yq -o=json '.controls[]' .build/pre-build-patch.yml > controls.json
+        yq -o=json '.controls[]' .build/pre-build-patch-pombump.yml > controls.json
         MATCH=$(jq -c \
           --arg spark_version "${{ inputs.spark_version }}" \
           --arg python_version "${{ inputs.python_version }}" \
@@ -43,13 +43,15 @@ runs:
           'select(.spark_version == $spark_version and .python_version == $python_version and .java_version == $java_version and .hadoop_version == $hadoop_version)' controls.json)
         if [ -z "$MATCH" ]; then
           echo "patch_files=" >> $GITHUB_OUTPUT
+          echo "has_config=false" >> $GITHUB_OUTPUT
         else
           echo "patch_files=$(echo $MATCH | jq -r '.patch_files | join(",")')" >> $GITHUB_OUTPUT
+          echo "has_config=true" >> $GITHUB_OUTPUT
         fi
       shell: bash
 
     - name: Download and setup Spark source
-      if: steps.read_patch.outputs.patch_files != ''
+      if: steps.read_patch.outputs.has_config == 'true'
       run: |
         set -x
         # Clone specific Spark version
@@ -59,7 +61,7 @@ runs:
       shell: bash
 
     - name: Apply patch
-      id: apply_patch      
+      id: apply_patch
       if: steps.read_patch.outputs.patch_files != ''
       run: |
         set -x
@@ -76,7 +78,7 @@ runs:
       shell: bash
 
     - name: Install and Run pombump
-      if: steps.read_patch.outputs.patch_files != ''
+      if: steps.read_patch.outputs.has_config == 'true'
       run: |
         set -x
         export PATH="$HOME/bin:$PATH"
@@ -92,14 +94,14 @@ runs:
 
         echo "Applying pombump for Spark minor version ${{ steps.patch_vars.outputs.minor }}"
         cd "${{ github.workspace }}"
-        
+
         # Navigate to spark-source and apply pombump to main pom.xml
         cd spark-source
-        
+
         # Check if pombump configuration files exist
         PROPERTIES_FILE="../${{ steps.patch_vars.outputs.patch_dir }}/pombump-properties.yaml"
         DEPS_FILE="../${{ steps.patch_vars.outputs.patch_dir }}/pombump-deps.yaml"
-        
+
         if [[ -f "$PROPERTIES_FILE" && -f "$DEPS_FILE" ]]; then
           echo "=== RUNNING POMBUMP ON PATCHED POM.XML ==="
           echo "Properties file: $PROPERTIES_FILE"
@@ -111,17 +113,17 @@ runs:
           echo "=== POMBUMP CONFIGURATION FILES NOT FOUND ==="
           echo "Skipping pombump step"
         fi
-        
+
         cd "${{ github.workspace }}"
       shell: bash
 
     - name: Copy patched files to build context
-      if: steps.read_patch.outputs.patch_files != ''
+      if: steps.read_patch.outputs.has_config == 'true'
       run: |
         set -x
         # Create directory for patched files
         mkdir -p ${{ inputs.image }}/patched-spark-files
-        
+
         # Copy the modified files from spark-source to build context
         cp -r spark-source/* ${{ inputs.image }}/patched-spark-files/
         ls -lrt 
