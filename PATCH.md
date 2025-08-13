@@ -57,7 +57,6 @@ The patching happens automatically during the Docker build process via the `.git
 ### Patch Types
 
 #### Security Patches
-- **log4j-fix.patch**: Addresses Log4j vulnerabilities in older Spark versions
 
 #### Dependency Updates  
 

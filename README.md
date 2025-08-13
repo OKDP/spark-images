@@ -62,10 +62,10 @@ The images are pushed to [quay.io/okdp](https://quay.io/organization/okdp) repos
 This project automatically applies security fixes and dependency updates to Spark source code during builds.
 
 **Key Features:**
-- ✅ **Security patches** - Log4j vulnerability fixes
-- ✅ **Dependency updates** - AWS SDK, Guava, Netty bumps  
-- ✅ **Build compatibility** - Path and script fixes
-- ✅ **Version-specific** - Different patches per Spark version
+- ✅ **Security patches** 
+- ✅ **Dependency updates**
+- ✅ **Build compatibility**
+- ✅ **Version-specific**
 
 📖 **[Read the full patching documentation →](PATCH.md)**
 
