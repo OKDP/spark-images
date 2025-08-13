@@ -18,14 +18,6 @@ controls:
     hadoop_version: "3.3.6"
     patch_files:
       - log4j-fix.patch
-  - spark_version: "3.5.1"
-    python_version: "3.11"
-    java_version: "17"
-    hadoop_version: "3.3.6"
-    patch_files:
-      - aws-sdk-bump.patch
-      - bump-packages.patch
-      - path-update-scripts.patch
 ```
 
 #### 2. Patch Files Structure
@@ -37,12 +29,6 @@ spark-base/
   spark-3.2/
     ├── log4j-fix.patch
     └── pombump-properties.yaml
-  spark-3.5/
-    ├── aws-sdk-bump.patch
-    ├── bump-packages.patch
-    ├── path-update-scripts.patch
-    ├── pombump-properties.yaml
-    └── pombump-deps.yaml
 ```
 
 #### 3. Patch Application Process
@@ -72,16 +58,10 @@ The patching happens automatically during the Docker build process via the `.git
 
 #### Security Patches
 - **log4j-fix.patch**: Addresses Log4j vulnerabilities in older Spark versions
-- Applied to Spark 3.2.x versions
 
 #### Dependency Updates  
-- **aws-sdk-bump.patch**: Updates AWS SDK versions for better cloud compatibility
-- **bump-packages.patch**: Updates various package versions for security and compatibility
-- Applied to Spark 3.5.x versions
 
 #### Build Fixes
-- **path-update-scripts.patch**: Fixes build script paths and compatibility issues
-- Applied as needed for specific version combinations
 
 ### POMBump Integration
 
