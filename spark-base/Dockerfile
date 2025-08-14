@@ -14,11 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-ARG JAVA_VERSION=11
+ARG JAVA_VERSION=17
 FROM eclipse-temurin:${JAVA_VERSION}-jdk-jammy AS spark_builder
 
 ARG spark_uid=185
-ARG SPARK_VERSION=3.2.1
+ARG SPARK_VERSION=3.5.1
 ARG HADOOP_VERSION=3.3.6
 ARG SCALA_VERSION=2.13
 ARG SPARK_REPO_URL=https://github.com/apache/spark.git
@@ -118,14 +118,14 @@ RUN set -ex; \
     rm -rf ${WORK_DIR}
 
 # Final runtime image
-ARG JAVA_VERSION=11
+ARG JAVA_VERSION=17
 FROM eclipse-temurin:${JAVA_VERSION}-jre-jammy
 
 # Prevent interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
 
 ARG spark_uid=185
-ARG SPARK_VERSION=3.2.1
+ARG SPARK_VERSION=3.5.1
 ARG HADOOP_VERSION=3.3.6
 ARG SCALA_VERSION=2.13
 ARG SPARK_REPO_URL=https://github.com/apache/spark.git
