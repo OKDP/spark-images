@@ -14,11 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-ARG JAVA_VERSION=17
+ARG JAVA_VERSION=11
 FROM eclipse-temurin:${JAVA_VERSION}-jdk-jammy AS spark_builder
 
 ARG spark_uid=185
-ARG SPARK_VERSION=3.5.1
+ARG SPARK_VERSION=3.2.1
 ARG HADOOP_VERSION=3.3.6
 ARG SCALA_VERSION=2.13
 ARG SPARK_REPO_URL=https://github.com/apache/spark.git
@@ -28,8 +28,8 @@ ENV HADOOP_VERSION   ${HADOOP_VERSION}
 ENV SCALA_VERSION    ${SCALA_VERSION}
 ENV SPARK_REPO_URL   ${SPARK_REPO_URL}
 
-# Configure Maven memory - increased for larger builds
 # ENV MAVEN_OPTS="-Xss64m -Xmx2g -XX:ReservedCodeCacheSize=1g"
+# ENV MAVEN_OPTS="-Xss64m -Xmx3g -XX:ReservedCodeCacheSize=1g"
 ENV MAVEN_OPTS="-Xss64m -Xmx4g -XX:ReservedCodeCacheSize=1g -XX:+UseG1GC -XX:G1HeapRegionSize=16m"
 ARG SPARK_BUILD_ARGS="\
     --name custom \
@@ -119,14 +119,14 @@ RUN set -ex; \
     rm -rf ${WORK_DIR}
 
 # Final runtime image
-ARG JAVA_VERSION=17
+ARG JAVA_VERSION=11
 FROM eclipse-temurin:${JAVA_VERSION}-jre-jammy
 
 # Prevent interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
 
 ARG spark_uid=185
-ARG SPARK_VERSION=3.5.1
+ARG SPARK_VERSION=3.2.1
 ARG HADOOP_VERSION=3.3.6
 ARG SCALA_VERSION=2.13
 ARG SPARK_REPO_URL=https://github.com/apache/spark.git

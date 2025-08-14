@@ -68,7 +68,7 @@ on:
         required: true
         type: string
       enable_patch_pombump:
-        description: 'Enable patch-pombump'
+        description: Enable patch-pombump
         required: false
         type: boolean
         default: true
@@ -144,7 +144,8 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ${{ inputs.image }}
-          platforms: linux/amd64,linux/arm64     
+          # platforms: linux/amd64,linux/arm64    
+          platforms: linux/amd64           
           push: true
           build-args: |
             SPARK_VERSION=${{ inputs.spark_version}}
