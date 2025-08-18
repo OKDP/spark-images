@@ -14,8 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+ARG BUILDPLATFORM=linux/amd64
 ARG JAVA_VERSION=17
-FROM --platform=linux/amd64 eclipse-temurin:${JAVA_VERSION}-jdk-jammy AS spark_builder
+FROM --platform=${BUILDPLATFORM} eclipse-temurin:${JAVA_VERSION}-jdk-jammy AS spark_builder
 
 ARG spark_uid=185
 ARG SPARK_VERSION=3.5.1
@@ -145,11 +146,20 @@ RUN set -ex; \
     apt-get update; \
     ln -s /lib /lib64; \
     export DEBIAN_FRONTEND=noninteractive; \
-    # Install packages in smaller batches for ARM64 compatibility
-    apt install -y --no-install-recommends bash tini libc6; \
-    apt install -y --no-install-recommends libpam-modules krb5-user libnss3; \
-    apt install -y --no-install-recommends procps net-tools gosu libnss-wrapper; \
-    apt install -y --no-install-recommends curl python3 python3-pip; \
+    apt install -y --no-install-recommends \
+        bash \
+        tini \
+        libc6 \
+        libpam-modules \
+        krb5-user \ 
+        libnss3 \
+        procps \
+        net-tools \ 
+        gosu \
+        libnss-wrapper \
+        curl \
+        python3 \
+        python3-pip; \
     mkdir -p ${SPARK_HOME}; \
     mkdir -p ${SPARK_HOME}/work-dir; \
     chmod g+w ${SPARK_HOME}/work-dir; \
