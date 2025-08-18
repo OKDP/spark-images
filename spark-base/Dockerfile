@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 ARG JAVA_VERSION=17
-FROM eclipse-temurin:${JAVA_VERSION}-jdk-jammy AS spark_builder
+FROM --platform=linux/amd64 eclipse-temurin:${JAVA_VERSION}-jdk-jammy AS spark_builder
 
 ARG spark_uid=185
 ARG SPARK_VERSION=3.5.1
