@@ -75,7 +75,7 @@ The system uses `.build/pre-build-patch-pombump.yml` to determine which Spark ve
 
 ```yaml
 controls:
-  - spark_version: "3.4.1"
+  - spark_version: [3.4.1]
     python_version: "3.11"
     java_version: "17"
     hadoop_version: "3.3.6"

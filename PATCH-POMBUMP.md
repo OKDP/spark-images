@@ -13,7 +13,7 @@ This file defines which Spark versions should receive processing and what type o
 ```yaml
 controls:
   # Spark version with source patches + pombump
-  - spark_version: "3.2.4"
+  - spark_version: [3.2.4]
     python_version: "3.9"
     java_version: "11" 
     hadoop_version: "3.3.6"
@@ -21,7 +21,7 @@ controls:
       - log4j-fix.patch
       
   # Spark version with pombump only (no source patches)
-  - spark_version: "3.4.1"
+  - spark_version: [3.4.1]
     python_version: "3.11"
     java_version: "17"
     hadoop_version: "3.3.6"
@@ -77,7 +77,7 @@ The patching happens automatically during the Docker build process via the `.git
 For older Spark versions that need both source fixes and dependency updates:
 
 ```yaml
-- spark_version: "3.2.4"
+- spark_version: [3.2.4]
   patch_files:
     - log4j-fix.patch  # Source code fix
   # + pombump updates dependencies
@@ -88,7 +88,7 @@ For older Spark versions that need both source fixes and dependency updates:
 For newer Spark versions that only need dependency updates:
 
 ```yaml
-- spark_version: "3.4.1"  
+- spark_version: [3.4.1]  
   patch_files: []  # No source patches needed
   # + pombump updates dependencies
 ```
