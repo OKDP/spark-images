@@ -1,0 +1,41 @@
+diff --git a/common/network-common/pom.xml b/common/network-common/pom.xml
+index a957f7b4545..dc7f5477e1c 100644
+--- a/common/network-common/pom.xml
++++ b/common/network-common/pom.xml
+@@ -87,6 +87,11 @@
+       <artifactId>guava</artifactId>
+       <scope>compile</scope>
+     </dependency>
++    <dependency>
++      <groupId>com.google.guava</groupId>
++      <artifactId>failureaccess</artifactId>
++      <scope>compile</scope>
++    </dependency>
+     <dependency>
+       <groupId>org.apache.commons</groupId>
+       <artifactId>commons-crypto</artifactId>
+diff --git a/pom.xml b/pom.xml
+index 4b4ca77ef17..f5ca4f484de 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -515,6 +515,12 @@
+         <version>${guava.version}</version>
+         <scope>provided</scope>
+       </dependency>
++      <dependency>
++        <groupId>com.google.guava</groupId>
++        <artifactId>failureaccess</artifactId>
++        <version>1.0.2</version>
++        <scope>provided</scope>
++      </dependency>
+       <dependency>
+         <groupId>org.jpmml</groupId>
+         <artifactId>pmml-model</artifactId>
+@@ -3047,6 +3053,7 @@
+               <include>org.eclipse.jetty:jetty-util</include>
+               <include>org.eclipse.jetty:jetty-server</include>
+               <include>com.google.guava:guava</include>
++              <include>com.google.guava:failureaccess</include>
+               <include>org.jpmml:*</include>
+             </includes>
+           </artifactSet>

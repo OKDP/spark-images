@@ -1,0 +1,18 @@
+diff --git a/core/src/main/scala/org/apache/spark/deploy/SparkSubmit.scala b/core/src/main/scala/org/apache/spark/deploy/SparkSubmit.scala
+index 93e15c9..d000634 100644
+--- a/core/src/main/scala/org/apache/spark/deploy/SparkSubmit.scala
++++ b/core/src/main/scala/org/apache/spark/deploy/SparkSubmit.scala
+@@ -379,7 +379,12 @@ private[spark] class SparkSubmit extends Logging {
+     args.jars = Option(args.jars).map(resolveGlobPaths(_, hadoopConf)).orNull
+     args.files = Option(args.files).map(resolveGlobPaths(_, hadoopConf)).orNull
+     args.pyFiles = Option(args.pyFiles).map(resolveGlobPaths(_, hadoopConf)).orNull
+-    args.archives = Option(args.archives).map(resolveGlobPaths(_, hadoopConf)).orNull
++    if (!isKubernetesCluster && sparkConf.getBoolean("spark.kubernetes.resolveGlobPathsInSubmit", true)) {
++        args.jars = Option(args.jars).map(resolveGlobPaths(_, hadoopConf)).orNull
++        args.files = Option(args.files).map(resolveGlobPaths(_, hadoopConf)).orNull
++        args.pyFiles = Option(args.pyFiles).map(resolveGlobPaths(_, hadoopConf)).orNull
++        args.archives = Option(args.archives).map(resolveGlobPaths(_, hadoopConf)).orNull
++    }
+ 
+ 
+     // In client mode, download remote files.

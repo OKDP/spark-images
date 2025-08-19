@@ -40,7 +40,11 @@ runs:
           --arg python_version "${{ inputs.python_version }}" \
           --arg java_version "${{ inputs.java_version }}" \
           --arg hadoop_version "${{ inputs.hadoop_version }}" \
-          'select(.spark_version == $spark_version and .python_version == $python_version and .java_version == $java_version and .hadoop_version == $hadoop_version)' controls.json)
+          'select((.spark_version | arrays and (.[] == $spark_version)) 
+                  and .python_version == $python_version 
+                  and .java_version == $java_version 
+                  and .hadoop_version == $hadoop_version)' controls.json)
+
         if [ -z "$MATCH" ]; then
           echo "patch_files=" >> $GITHUB_OUTPUT
           echo "has_config=false" >> $GITHUB_OUTPUT

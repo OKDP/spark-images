@@ -1,0 +1,17 @@
+diff --git a/hadoop-cloud/pom.xml b/hadoop-cloud/pom.xml
+index 47e45c94..fdb8a53d 100644
+--- a/hadoop-cloud/pom.xml
++++ b/hadoop-cloud/pom.xml
+@@ -79,6 +79,12 @@
+       <version>${hadoop.version}</version>
+       <scope>${hadoop.deps.scope}</scope>
+     </dependency>
++    <dependency>
++      <groupId>com.amazonaws</groupId>
++      <artifactId>aws-java-sdk-bundle</artifactId>
++      <version>${aws.java.sdk.version}</version>
++      <scope>${hadoop.deps.scope}</scope>
++    </dependency>    
+     <dependency>
+       <groupId>com.google.cloud.bigdataoss</groupId>
+       <artifactId>gcs-connector</artifactId>
