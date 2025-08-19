@@ -1,6 +1,6 @@
 ## Patching and Dependency Management System
 
-This project uses an advanced patching system to apply security fixes and dependency updates to Spark source code before building Docker images. The system supports both traditional source code patches and automated dependency version management via pombump.
+This project uses a patching system to apply security fixes and dependency updates to Spark source code before building Docker images. The system supports both traditional source code patches and automated dependency version management via pombump.
 
 ### How the System Works
 
@@ -161,47 +161,6 @@ else
 fi
 ```
 
-### Adding New Configurations
-
-To add a new Spark version for processing:
-
-#### Option 1: Pombump Only (Recommended for newer Spark versions)
-
-1. **Create pombump configuration** in `spark-base/spark-X.Y/`:
-   ```bash
-   mkdir -p spark-base/spark-3.6/
-   # Create pombump-properties.yaml and pombump-deps.yaml
-   ```
-
-2. **Add to configuration** in `.build/pre-build-patch-pombump.yml`:
-   ```yaml
-   - spark_version: "3.6.0"
-     python_version: "3.11"
-     java_version: "17" 
-     hadoop_version: "3.3.6"
-     patch_files: []  # No source patches, pombump only
-   ```
-
-#### Option 2: Source Patches + Pombump (For versions needing source fixes)
-
-1. **Create patch files** in `spark-base/spark-X.Y/`:
-   ```bash
-   mkdir -p spark-base/spark-3.2/
-   # Add .patch files + pombump configs
-   ```
-
-2. **Add to configuration**:
-   ```yaml
-   - spark_version: "3.2.5"
-     python_version: "3.9"
-     java_version: "11"
-     hadoop_version: "3.3.6"
-     patch_files:
-       - security-fix.patch
-   ```
-
-3. **Test the build** to ensure patches apply correctly
-
 ### Benefits
 
 - **Security**: Automatically applies security fixes and updates vulnerable dependencies
@@ -210,16 +169,3 @@ To add a new Spark version for processing:
 - **Automation**: No manual intervention required during builds
 - **Reliability**: POMBump ensures safe dependency updates without breaking builds
 - **Selective**: Only processes Spark versions that need modifications
-
-### Current Configuration Status
-
-The following Spark versions are currently configured for processing:
-
-```yaml
-# Active configurations in .build/pre-build-patch-pombump.yml
-
-```
-
-All other Spark versions use the original Apache distribution without modifications.
-
-This system ensures that configured Spark images include the latest security fixes and compatibility improvements, while maintaining the integrity of unmodified versions.

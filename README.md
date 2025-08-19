@@ -59,7 +59,7 @@ The images are pushed to [quay.io/okdp](https://quay.io/organization/okdp) repos
 
 # Patching and Dependency Management System
 
-This project automatically applies security fixes and dependency updates to Spark source code during builds using a sophisticated patch and pombump system.
+This project automatically applies security fixes and dependency updates to Spark source code during builds using a patch and pombump system.
 
 **Key Features:**
 - ✅ **Source code patches** for critical security fixes
