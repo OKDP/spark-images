@@ -33,5 +33,6 @@ RUN set -ex; \
     rm -rf /var/lib/apt/lists/*
 
 ENV R_HOME /usr/lib/R
+ENV R_LIBS /opt/spark/R/lib
 
 USER spark

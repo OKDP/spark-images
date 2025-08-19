@@ -1,0 +1,64 @@
+controls:
+  ## Spark 3.2.x versions
+  - spark_version: "3.2.1"
+    python_version: "3.9"
+    java_version: "11"
+    hadoop_version: "3.3.6"
+    patch_files:
+      - log4j-fix.patch
+  - spark_version: "3.2.2"
+    python_version: "3.9"
+    java_version: "11"
+    hadoop_version: "3.3.6"
+    patch_files:
+      - log4j-fix.patch
+  - spark_version: "3.2.3"
+    python_version: "3.9"
+    java_version: "11"
+    hadoop_version: "3.3.6"
+    patch_files:
+      - log4j-fix.patch
+  - spark_version: "3.2.4"
+    python_version: "3.9"
+    java_version: "11"
+    hadoop_version: "3.3.6"
+    patch_files:
+      - log4j-fix.patch
+  ## Spark 3.3.x versions
+  - spark_version: "3.3.1"
+    python_version: "3.10"
+    java_version: "17"
+    hadoop_version: "3.3.6"
+    patch_files: []
+  - spark_version: "3.3.2"
+    python_version: "3.10"
+    java_version: "17"
+    hadoop_version: "3.3.6"
+    patch_files: []
+  - spark_version: "3.3.3"
+    python_version: "3.10"
+    java_version: "17"
+    hadoop_version: "3.3.6"
+    patch_files: []
+  - spark_version: "3.3.4"
+    python_version: "3.10"
+    java_version: "17"
+    hadoop_version: "3.3.6"
+    patch_files: []
+  ## Spark 3.4.x versions
+  - spark_version: "3.4.1"
+    python_version: "3.11"
+    java_version: "17"
+    hadoop_version: "3.3.6"
+    patch_files: []
+  - spark_version: "3.4.2"
+    python_version: "3.11"
+    java_version: "17"
+    hadoop_version: "3.3.6"
+    patch_files: []
+  ## Spark 3.5.x versions
+  - spark_version: "3.5.1"
+    python_version: "3.11"
+    java_version: "17"
+    hadoop_version: "3.3.6"
+    patch_files: []  

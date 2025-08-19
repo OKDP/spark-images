@@ -72,4 +72,3 @@ COPY --chown=spark:spark metrics.properties ${JMX_CONF_DIR}/metrics.properties
 COPY --chown=spark:spark prometheus.yaml    ${JMX_CONF_DIR}/prometheus.yaml
 
 USER spark
-

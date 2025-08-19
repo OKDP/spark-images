@@ -67,6 +67,11 @@ on:
         description: GitHub Actions Runner image
         required: true
         type: string
+      enable_patch_pombump:
+        description: Enable patch-pombump
+        required: false
+        type: boolean
+        default: true
 
 jobs:
   
@@ -124,12 +129,22 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Apply patch and pombump
+        uses: ./.github/actions/patch-pombump
+        if: inputs.image == 'spark-base' && inputs.enable_patch_pombump == true
+        with:
+          image: ${{ inputs.image }}
+          spark_version: ${{ inputs.spark_version }}
+          python_version: ${{ inputs.python_version }}
+          java_version: ${{ inputs.java_version }}
+          hadoop_version: ${{ inputs.hadoop_version }}
+
       - name: Build and push to ci registry
         if: inputs.publish_to_registry == 'false'
         uses: docker/build-push-action@v5
         with:
           context: ${{ inputs.image }}
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64,linux/arm64           
           push: true
           build-args: |
             SPARK_VERSION=${{ inputs.spark_version}}
@@ -199,7 +214,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ${{ inputs.image }}
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64,linux/arm64   
           push: true
           build-args: |
             SPARK_VERSION=${{ inputs.spark_version}}
