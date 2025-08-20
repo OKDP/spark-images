@@ -1,0 +1,54 @@
+diff --git a/core/pom.xml b/core/pom.xml
+index 93c2233..016ea47 100644
+--- a/core/pom.xml
++++ b/core/pom.xml
+@@ -242,6 +242,10 @@
+       <groupId>org.apache.logging.log4j</groupId>
+       <artifactId>log4j-1.2-api</artifactId>
+     </dependency>
++    <dependency>
++      <groupId>org.apache.logging.log4j</groupId>
++      <artifactId>log4j-layout-template-json</artifactId>
++     </dependency>
+ 
+     <dependency>
+       <groupId>com.ning</groupId>
+diff --git a/pom.xml b/pom.xml
+index d354488..820738e 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -800,6 +800,11 @@
+         <version>${log4j.version}</version>
+         <scope>${hadoop.deps.scope}</scope>
+       </dependency>
++      <dependency>
++        <groupId>org.apache.logging.log4j</groupId>
++        <artifactId>log4j-layout-template-json</artifactId>
++        <version>${log4j.version}</version>
++     </dependency>
+ 
+       <!-- end -->
+ 
+@@ -3282,6 +3287,9 @@
+             <relocation>
+               <pattern>com.google.common</pattern>
+               <shadedPattern>${spark.shade.packageName}.guava</shadedPattern>
++              <excludes>
++                <exclude>com.google.common.util.concurrent.internal.**</exclude>
++              </excludes>
+             </relocation>
+             <relocation>
+               <pattern>org.dmg.pmml</pattern>
+diff --git a/sql/hive/src/main/scala/org/apache/spark/sql/hive/client/IsolatedClientLoader.scala b/sql/hive/src/main/scala/org/apache/spark/sql/hive/client/IsolatedClientLoader.scala
+index dde3be5..90c2e49 100644
+--- a/sql/hive/src/main/scala/org/apache/spark/sql/hive/client/IsolatedClientLoader.scala
++++ b/sql/hive/src/main/scala/org/apache/spark/sql/hive/client/IsolatedClientLoader.scala
+@@ -69,7 +69,7 @@ private[hive] object IsolatedClientLoader extends Logging {
+             // If the error message contains hadoop, it is probably because the hadoop
+             // version cannot be resolved.
+             val fallbackVersion = if (VersionUtils.isHadoop3) {
+-              "3.3.4"
++              "3.3.6"
+             } else {
+               "2.7.4"
+             }

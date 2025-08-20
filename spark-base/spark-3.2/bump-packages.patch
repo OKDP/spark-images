@@ -1,0 +1,22 @@
+diff --git a/sql/hive/src/main/scala/org/apache/spark/sql/hive/client/IsolatedClientLoader.scala b/sql/hive/src/main/scala/org/apache/spark/sql/hive/client/IsolatedClientLoader.scala
+index 9aa6a09..fda8654 100644
+--- a/sql/hive/src/main/scala/org/apache/spark/sql/hive/client/IsolatedClientLoader.scala
++++ b/sql/hive/src/main/scala/org/apache/spark/sql/hive/client/IsolatedClientLoader.scala
+@@ -55,7 +55,7 @@ private[hive] object IsolatedClientLoader extends Logging {
+       sharedPrefixes: Seq[String] = Seq.empty,
+       barrierPrefixes: Seq[String] = Seq.empty): IsolatedClientLoader = synchronized {
+     val resolvedVersion = hiveVersion(hiveMetastoreVersion)
+-    // We will use Hadoop 2.7 if we cannot resolve the Hadoop artifact.
++    // We will use Hadoop 3.3 if we cannot resolve the Hadoop artifact.
+     val files = if (resolvedVersions.contains((resolvedVersion, hadoopVersion))) {
+       resolvedVersions((resolvedVersion, hadoopVersion))
+     } else {
+@@ -67,7 +67,7 @@ private[hive] object IsolatedClientLoader extends Logging {
+           case e: RuntimeException if e.getMessage.contains("hadoop") =>
+             // If the error message contains hadoop, it is probably because the hadoop
+             // version cannot be resolved.
+-            val fallbackVersion = "2.7.4"
++            val fallbackVersion = "3.3.6"
+             logWarning(s"Failed to resolve Hadoop artifacts for the version $hadoopVersion. We " +
+               s"will change the hadoop version from $hadoopVersion to $fallbackVersion and try " +
+               "again. It is recommended to set jars used by Hive metastore client through " +

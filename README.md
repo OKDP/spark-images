@@ -118,4 +118,3 @@ This ensures all builds use the latest secure dependency versions, even without 
 # Alternatives
 
 - [Official images](https://github.com/apache/spark-docker)
-

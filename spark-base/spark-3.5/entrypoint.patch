@@ -1,0 +1,10 @@
+diff --git a/resource-managers/kubernetes/docker/src/main/dockerfiles/spark/entrypoint.sh b/resource-managers/kubernetes/docker/src/main/dockerfiles/spark/entrypoint.sh
+index f9561b9a..b6bfb5b0 100755
+--- a/resource-managers/kubernetes/docker/src/main/dockerfiles/spark/entrypoint.sh
++++ b/resource-managers/kubernetes/docker/src/main/dockerfiles/spark/entrypoint.sh
+@@ -115,4 +115,4 @@ case "$1" in
+ esac
+ 
+ # Execute the container CMD under tini for better hygiene
+-exec /usr/bin/tini -s -- "${CMD[@]}"
++exec /sbin/tini -s -- "${CMD[@]}"
