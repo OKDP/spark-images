@@ -32,8 +32,7 @@ controls:
       - bump-packages.patch
       - entrypoint.patch
       - guava.patch
-      - make-distribution.patch
-      - path-update-scripts.patch    
+      - make-distribution.patch  
   - spark_version: "3.2.4"
     python_version: "3.9"
     java_version: "11"
@@ -44,8 +43,7 @@ controls:
       - bump-packages.patch
       - entrypoint.patch
       - guava.patch
-      - make-distribution.patch
-      - path-update-scripts.patch      
+      - make-distribution.patch    
   ## Spark 3.3.x versions
   - spark_version: "3.3.1"
     python_version: "3.10"
@@ -56,7 +54,6 @@ controls:
       - bump-packages.patch
       - entrypoint.patch
       - make-distribution.patch
-      - path-update-scripts.patch
       - spark_submit.patch
   - spark_version: "3.3.2"
     python_version: "3.10"
@@ -67,7 +64,6 @@ controls:
       - bump-packages.patch
       - entrypoint.patch
       - make-distribution.patch
-      - path-update-scripts.patch
       - spark_submit.patch
   - spark_version: "3.3.3"
     python_version: "3.10"
@@ -78,7 +74,6 @@ controls:
       - bump-packages.patch
       - entrypoint.patch
       - make-distribution.patch
-      - path-update-scripts.patch
       - spark_submit.patch
   - spark_version: "3.3.4"
     python_version: "3.10"
@@ -89,7 +84,6 @@ controls:
       - bump-packages.patch
       - entrypoint.patch
       - make-distribution.patch
-      - path-update-scripts.patch
       - spark_submit.patch
   ## Spark 3.4.x versions
   - spark_version: "3.4.1"
@@ -101,7 +95,6 @@ controls:
       - bump-packages.patch
       - entrypoint.patch
       - make-distribution.patch
-      - path-update-scripts.patch
       - spark_submit.patch
   - spark_version: "3.4.2"
     python_version: "3.11"
@@ -112,7 +105,6 @@ controls:
       - bump-packages.patch
       - entrypoint.patch
       - make-distribution.patch
-      - path-update-scripts.patch
       - spark_submit.patch    
   ## Spark 3.5.x versions
   - spark_version: "3.5.1"
@@ -123,5 +115,4 @@ controls:
       - aws-sdk-bump.patch
       - bump-packages.patch
       - entrypoint.patch
-      - path-update-scripts.patch
       - spark_submit.patch
