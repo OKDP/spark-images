@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.0](https://github.com/OKDP/spark-images/compare/v1.0.1...v2.0.0) (2025-09-15)
+
+
+### Miscellaneous Chores
+
+* release 2.0.0 ([e177b9f](https://github.com/OKDP/spark-images/commit/e177b9f7787060013d7fb7043c69a91ba4972da9))
+
 ## [1.0.1](https://github.com/OKDP/spark-images/compare/v1.0.0...v1.0.1) (2024-06-10)
 
 
