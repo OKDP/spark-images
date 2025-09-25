@@ -60,7 +60,7 @@ jobs:
       matrix: ${{ steps.ci-versions.outputs.matrix }}
     steps:
       - name: Checkout Repo ⚡️
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Get CI versions matrix 📥
         id: ci-versions
