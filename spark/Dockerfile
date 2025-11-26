@@ -71,4 +71,7 @@ COPY --from=okdp_addons --chown=spark:spark /workspace/target/dependency/* $SPAR
 COPY --chown=spark:spark metrics.properties ${JMX_CONF_DIR}/metrics.properties
 COPY --chown=spark:spark prometheus.yaml    ${JMX_CONF_DIR}/prometheus.yaml
 
+# Add symkink for jmx_prometheus_agent
+RUN ln -s $(find $SPARK_HOME/jars -name "jmx_prometheus_javaagent-*.jar" 2>/dev/null | head -n 1) /usr/lib/prometheus/jmx_prometheus_javaagent.jar
+
 USER spark
