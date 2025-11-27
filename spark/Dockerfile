@@ -72,8 +72,7 @@ COPY --chown=spark:spark metrics.properties ${JMX_CONF_DIR}/metrics.properties
 COPY --chown=spark:spark prometheus.yaml    ${JMX_CONF_DIR}/prometheus.yaml
 
 # Add symkink for jmx_prometheus_agent
-RUN mkdir -p /usr/lib/prometheus && \
-    ln -s "$SPARK_HOME/jars/jmx_prometheus_javaagent-"*.jar \
-          /usr/lib/prometheus/jmx_prometheus_javaagent.jar
+RUN ln -s "$SPARK_HOME/jars/jmx_prometheus_javaagent-"*.jar \
+          "$SPARK_HOME/jars/jmx_prometheus_javaagent.jar"
 
 USER spark
