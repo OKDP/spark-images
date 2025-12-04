@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.0.2](https://github.com/OKDP/spark-images/compare/v2.0.1...v2.0.2) (2025-12-04)
+
+
+### Bug Fixes
+
+* add symbolic link for jmx_prometheus_agent ([8d19378](https://github.com/OKDP/spark-images/commit/8d19378e2cb2c3c81b0d994cf79fde71425d260e))
+* add symkink for jmx_prometheus_agent ([2091159](https://github.com/OKDP/spark-images/commit/20911597b2c7ef6e213d70a1035b4e29b16febf4))
+* refactor jmx_prometheus_agent symlink creation ([424f09e](https://github.com/OKDP/spark-images/commit/424f09ea0d4b4c6e50b253bb2af44e0bfaf665c7))
+
+
+### Miscellaneous Chores
+
+* release 2.0.2 ([ada06ad](https://github.com/OKDP/spark-images/commit/ada06adc638ff511e7886d93b59f5b5e3a061421))
+
 ## [2.0.1](https://github.com/OKDP/spark-images/compare/v2.0.0...v2.0.1) (2025-10-21)
 
 
