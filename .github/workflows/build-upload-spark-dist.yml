@@ -1,0 +1,114 @@
+#
+# Copyright 2025 okdp.io
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+name: Build Spark distribution tarball
+
+on:
+  workflow_call:
+    inputs:
+      spark_version:
+        description: Spark version
+        required: true
+        type: string
+      scala_version:
+        description: Scala version
+        required: true
+        type: string
+      java_version:
+        description: Java version
+        required: true
+        type: string
+      hadoop_version:
+        description: Hadoop version
+        required: true
+        type: string
+      registry:
+        description: The container registry
+        required: false
+        type: string
+        default: quay.io
+      git_latest_release_tag:
+        description: The latest remote release tag
+        required: true
+        type: string
+      github_tarball_release:
+        description: "GitHub release tag where to push spark tgz tarballs"
+        type: string
+        default: "spark-tarballs"
+      runs-on:
+        description: GitHub Actions Runner image
+        required: false
+        type: string
+        default: "ubuntu-latest"
+
+jobs:
+  build-upload-spark-dist:
+    name: dist(scala-${{ inputs.scala_version }}, java-${{ inputs.java_version }}, hadoop-${{ inputs.hadoop_version }})
+    runs-on: ${{ inputs.runs-on }}
+    steps:
+      - name: Checkout latest Github Release tag (${{ inputs.git_latest_release_tag }}) ⚡️
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.git_latest_release_tag }}
+
+      - name: Set Spark distribution name
+        run: |
+          HADOOP_MAJOR_VERSION="${{ inputs.hadoop_version }}"
+          HADOOP_MAJOR_VERSION="${HADOOP_MAJOR_VERSION%%.*}"
+          
+          SPARK_MAJOR_VERSION="${{ inputs.spark_version }}"
+          SPARK_MAJOR_VERSION="${SPARK_MAJOR_VERSION%%.*}"
+  
+          if [[ "${{ inputs.scala_version }}" == "2.12" || ( "${{ inputs.scala_version }}" == "2.13" && "$SPARK_MAJOR_VERSION" -ge 4 ) ]]; then
+            SPARK_DIST_NAME="spark-${{ inputs.spark_version }}-bin-hadoop${HADOOP_MAJOR_VERSION}"
+          else
+            SPARK_DIST_NAME="spark-${{ inputs.spark_version }}-bin-hadoop${HADOOP_MAJOR_VERSION}-scala${{ inputs.scala_version }}"
+          fi
+          echo "SPARK_DIST_NAME=${SPARK_DIST_NAME}" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Build spark distribution from Spark image
+        run: |
+          IMAGE="${{ inputs.registry }}/okdp/spark:spark-${{ inputs.spark_version }}-scala-${{ inputs.scala_version }}-java-${{ inputs.java_version }}"
+          SPARK_HOME=opt/spark
+          
+          echo "Pulling base image $IMAGE ..."
+          docker pull "$IMAGE"
+          
+          echo "Creating container from the image $IMAGE ..."
+          CID=$(docker create "$IMAGE")
+          
+          echo "Inspect Spark home directory"
+          docker export "$CID" | tar -tv "$SPARK_HOME/"
+          
+          mkdir -p "$SPARK_DIST_NAME"
+          
+          echo "Export Spark home directory content from container image into Spark Dist ${SPARK_DIST_NAME}.tgz"
+          docker export "$CID" | tar -xvf - -C "$SPARK_DIST_NAME" --strip-components=2 $SPARK_HOME
+          tar -czf "${SPARK_DIST_NAME}.tgz" "$SPARK_DIST_NAME"
+          
+          echo "Clean up"
+          docker rm "$CID"
+        shell: bash
+
+      - name: Upload Spark tarball to GitHub release (${{ inputs.github_tarball_release }})
+        run: |
+          echo "Uploading ${SPARK_DIST_NAME}.tgz to release {{ inputs.github_tarball_release }} ..."
+          gh release upload ${{ inputs.github_tarball_release }} "${SPARK_DIST_NAME}.tgz" --clobber
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+
