@@ -83,14 +83,14 @@ jobs:
       ### The publish and periodic rebuilds are based on the latest stable github release tag
       - name: Checkout latest Github Release tag (${{ inputs.git_latest_release_tag }}) ⚡️
         if: inputs.publish_to_registry == 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ inputs.git_latest_release_tag }}
       
       ### The CI is based on the main branch
       - name: Checkout Repo ⚡️
         if: inputs.publish_to_registry == 'false'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       ### Common steps between CI and Publish
       - name: Free up disk space 📦
