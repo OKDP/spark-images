@@ -40,7 +40,8 @@ concurrency:
 
 permissions:
   packages: write
-  
+  contents: write
+
 jobs:
   
   latest-github-release:
@@ -50,7 +51,7 @@ jobs:
       tag_name: ${{ steps.git-release-tag.outputs.tag_name }}
     steps:
       - name: Checkout Repo ⚡️
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Get latest GitHub Release tag name 📥
         id: git-release-tag
@@ -85,22 +86,40 @@ jobs:
         with:
           use_matrix: ".build/release-versions.yml"
 
-  spark-publish:
+#  spark-images-publish:
+#    if: github.repository_owner == 'OKDP' && needs.latest-github-release.outputs.tag_name != ''
+#    name: spark-images-publish (${{ needs.latest-github-release.outputs.tag_name }}/spark-${{ matrix.version.spark_version }})
+#    needs: [latest-github-release, get-release-versions]
+#    strategy:
+#      fail-fast: false
+#      matrix:
+#        version: ${{ fromJson(needs.get-release-versions.outputs.matrix) }}
+#    uses: ./.github/workflows/build-images-template.yml
+#    with:
+#      python_version: ${{ matrix.version.python_version }}
+#      spark_version: ${{ matrix.version.spark_version }}
+#      java_version: ${{ matrix.version.java_version }}
+#      scala_version: ${{ matrix.version.scala_version }}
+#      hadoop_version: ${{ matrix.version.hadoop_version }}
+#      registry: ${{ vars.REGISTRY || 'quay.io' }}
+#      publish_to_registry: "true"
+#      git_latest_release_tag: ${{ needs.latest-github-release.outputs.tag_name }}
+#    secrets: inherit
+
+  spark-dist-publish:
     if: github.repository_owner == 'OKDP' && needs.latest-github-release.outputs.tag_name != ''
-    name: spark-publish (${{ needs.latest-github-release.outputs.tag_name }}/spark-${{ matrix.version.spark_version }})
+    name: spark-dist-publish (${{ needs.latest-github-release.outputs.tag_name }}/spark-${{ matrix.version.spark_version }})
     needs: [latest-github-release, get-release-versions]
     strategy:
       fail-fast: false
-      matrix: 
+      matrix:
         version: ${{ fromJson(needs.get-release-versions.outputs.matrix) }}
-    uses: ./.github/workflows/build-images-template.yml
+    uses: ./.github/workflows/build-upload-spark-dist.yml
     with:
-      python_version: ${{ matrix.version.python_version }}
       spark_version: ${{ matrix.version.spark_version }}
       java_version: ${{ matrix.version.java_version }}
       scala_version: ${{ matrix.version.scala_version }}
       hadoop_version: ${{ matrix.version.hadoop_version }}
       registry: ${{ vars.REGISTRY || 'quay.io' }}
-      publish_to_registry: "true"
       git_latest_release_tag: ${{ needs.latest-github-release.outputs.tag_name }}
     secrets: inherit
