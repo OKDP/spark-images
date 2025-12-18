@@ -78,7 +78,7 @@ jobs:
       matrix: ${{ steps.release-versions.outputs.matrix }}
     steps:
       - name: Checkout Repo ⚡️
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Get release versions matrix 📥
         id: release-versions
