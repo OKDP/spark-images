@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 ARG BUILDPLATFORM=linux/amd64
 ARG JAVA_VERSION=17
 FROM --platform=${BUILDPLATFORM} eclipse-temurin:${JAVA_VERSION}-jdk-jammy AS spark_builder
@@ -69,8 +70,8 @@ RUN set -ex; \
         net-tools \
         gosu \
         libnss-wrapper \
-        r-base \        
-        r-base-dev; \        
+        r-base \
+        r-base-dev; \
     rm -rf /var/cache/apt/* && rm -rf /var/lib/apt/lists/*
 
 # Copy everything from build context, including patches if they exist
@@ -151,10 +152,10 @@ RUN set -ex; \
         tini \
         libc6 \
         libpam-modules \
-        krb5-user \ 
+        krb5-user \
         libnss3 \
         procps \
-        net-tools \ 
+        net-tools \
         gosu \
         libnss-wrapper \
         curl \
