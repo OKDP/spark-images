@@ -109,7 +109,7 @@ RUN set -ex; \
     fi; \
     \
     echo "=== BUILDING SPARK DISTRIBUTION ==="; \
-    ./dev/make-distribution.sh ${SPARK_BUILD_ARGS}; \    
+    ./dev/make-distribution.sh ${SPARK_BUILD_ARGS}; \
     mkdir -p /tmp/spark-dist; \
     mv dist /tmp/spark-dist/spark-built; \
     \
