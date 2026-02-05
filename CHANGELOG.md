@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.3](https://github.com/OKDP/spark-images/compare/v2.0.2...v2.0.3) (2026-02-05)
+
+
+### Bug Fixes
+
+* **ci:** persist pombump changes by overwriting pom.xml ([fbf73ef](https://github.com/OKDP/spark-images/commit/fbf73ef1fc20cb2979b032aa6dc33afc3dd37f37))
+
 ## [2.0.2](https://github.com/OKDP/spark-images/compare/v2.0.1...v2.0.2) (2025-12-04)
 
 
