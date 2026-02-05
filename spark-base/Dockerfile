@@ -69,54 +69,60 @@ RUN set -ex; \
         net-tools \
         gosu \
         libnss-wrapper \
-        r-base \        
-        r-base-dev; \        
+        r-base \
+        r-base-dev; \
     rm -rf /var/cache/apt/* && rm -rf /var/lib/apt/lists/*
 
+ENV WORK_DIR=/tmp/spark-build
+ENV SPARK_SOURCE=/tmp/spark-build/spark-source
+
+WORKDIR ${WORK_DIR}
+
 # Copy everything from build context, including patches if they exist
-COPY . /tmp/build-context/
+COPY . ${WORK_DIR}/
 
 # Download and build Spark from source
 RUN set -ex; \
     export WORK_DIR="$(mktemp -d)"; \
     cd ${WORK_DIR}; \
-    \
     echo "=== BUILDING SPARK ${SPARK_VERSION} FROM SOURCE ==="; \
-    \
     # Check if patched files exist and are not empty
-    if [ -d "/tmp/build-context/patched-spark-files" ] && [ "$(ls -A /tmp/build-context/patched-spark-files 2>/dev/null)" ]; then \
+    if [ -d "${WORK_DIR}/patched-spark-files" ] && [ "$(ls -A ${WORK_DIR}/patched-spark-files 2>/dev/null)" ]; then \
         echo "=== USING PATCHED SPARK SOURCE FILES ==="; \
         echo "Found patched source files, using them instead of cloning"; \
-        cp -r /tmp/build-context/patched-spark-files spark-source; \
-        cd spark-source; \
+        cp -r ${WORK_DIR}/patched-spark-files ${SPARK_SOURCE}; \
+        cd ${SPARK_SOURCE}; \
         chmod +x build/mvn dev/make-distribution.sh; \
         echo "Patched Spark source ready for build"; \
     else \
         echo "=== CLONING SPARK REPOSITORY ==="; \
         echo "Repository: ${SPARK_REPO_URL}"; \
         echo "Version: ${SPARK_VERSION}"; \
-        git clone --depth 1 --branch v${SPARK_VERSION} ${SPARK_REPO_URL} spark-source; \
-        cd spark-source; \
+        git clone --depth 1 --branch v${SPARK_VERSION} ${SPARK_REPO_URL} ${SPARK_SOURCE}; \
+        cd ${SPARK_SOURCE}; \
         echo "Spark v${SPARK_VERSION} cloned successfully"; \
-    fi; \
+    fi
+
+RUN set -ex; \
     echo "=== CONFIGURING SCALA VERSION ==="; \
     echo "Target Scala version: ${SCALA_VERSION}"; \
     if [ "${SCALA_VERSION}" = "2.13" ]; then \
         echo "Switching to Scala 2.13 using official script"; \
+        cd ${SPARK_SOURCE}; \
         ./dev/change-scala-version.sh 2.13; \
         echo "✅ Scala version changed to 2.13"; \
-    fi; \
-    \
+    fi
+
+RUN set -ex; \
     echo "=== BUILDING SPARK DISTRIBUTION ==="; \
+    cd ${SPARK_SOURCE}; \
     ./dev/make-distribution.sh ${SPARK_BUILD_ARGS}; \
     mkdir -p /tmp/spark-dist; \
     mv dist /tmp/spark-dist/spark-built; \
     \
     echo "=== SPARK BUILD COMPLETED ==="; \
     echo "Built Spark version: $(cat /tmp/spark-dist/spark-built/RELEASE | head -1)"; \
-    ls -la /tmp/spark-dist/; \
-    \
-    rm -rf ${WORK_DIR}
+    ls -la /tmp/spark-dist/
 
 # Final runtime image
 ARG JAVA_VERSION=17
@@ -151,10 +157,10 @@ RUN set -ex; \
         tini \
         libc6 \
         libpam-modules \
-        krb5-user \ 
+        krb5-user \
         libnss3 \
         procps \
-        net-tools \ 
+        net-tools \
         gosu \
         libnss-wrapper \
         curl \
