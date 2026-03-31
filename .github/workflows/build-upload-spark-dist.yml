@@ -82,7 +82,8 @@ jobs:
 
       - name: Build spark distribution from Spark image
         run: |
-          IMAGE="${{ inputs.registry }}/okdp/spark:spark-${{ inputs.spark_version }}-scala-${{ inputs.scala_version }}-java-${{ inputs.java_version }}"
+          repo_owner=${GITHUB_REPOSITORY_OWNER@L}"
+          IMAGE="${{ inputs.registry }}/${repo_owner}/spark:spark-${{ inputs.spark_version }}-scala-${{ inputs.scala_version }}-java-${{ inputs.java_version }}"
           SPARK_HOME=opt/spark
           
           echo "Pulling base image $IMAGE ..."

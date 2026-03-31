@@ -39,6 +39,11 @@ on:
         description: Python version
         required: true
         type: string
+      packages:
+        description: Comma-separated list of extra maven style jars to bake into the Spark image.
+        required: false
+        type: string
+        default: ""
       registry:
         description: The container registry 
         required: false
@@ -86,6 +91,7 @@ jobs:
       java_version: ${{ inputs.java_version }}
       scala_version: ${{ inputs.scala_version }}
       hadoop_version: ${{ inputs.hadoop_version }}
+      packages: ${{ inputs.packages }}
       registry: ${{ inputs.registry }}
       publish_to_registry: ${{ inputs.publish_to_registry }}
       git_latest_release_tag: ${{ inputs.git_latest_release_tag }}
