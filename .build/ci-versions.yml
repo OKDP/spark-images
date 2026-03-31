@@ -27,6 +27,11 @@ versions:
     java_version: [11]
     scala_version: [2.12, 2.13]
     hadoop_version: 3.3.6
+    packages:
+      - org.apache.iceberg:iceberg-spark-runtime-3.2_${scala_version}:1.4.3
+      - org.apache.iceberg:iceberg-aws-bundle:1.4.3
+      - io.okdp:okdp-spark-auth-filter:1.4.2
+      - https://github.com/prometheus/jmx_exporter/releases/download/1.5.0/jmx_prometheus_javaagent-1.5.0.jar
   # Maximum python version supported by spark-3.3.x: 3.10
   # Java support: 8/11/17
   - python_version: '3.10'
@@ -34,6 +39,11 @@ versions:
     java_version: [17]
     scala_version: [2.12, 2.13]
     hadoop_version: 3.3.6
+    packages:
+      - org.apache.iceberg:iceberg-spark-runtime-3.3_${scala_version}:1.8.1
+      - org.apache.iceberg:iceberg-aws-bundle:1.8.1
+      - io.okdp:okdp-spark-auth-filter:1.4.2
+      - https://github.com/prometheus/jmx_exporter/releases/download/1.5.0/jmx_prometheus_javaagent-1.5.0.jar
   # # # Maximum python version supported by spark-3.4.x: 3.11
   # Java support: 8/11/17
   - python_version: 3.11
@@ -41,6 +51,11 @@ versions:
     java_version: [17]
     scala_version: [2.12, 2.13]
     hadoop_version: 3.3.6
+    packages:
+      - org.apache.iceberg:iceberg-spark-runtime-3.4_${scala_version}:1.10.1
+      - org.apache.iceberg:iceberg-aws-bundle:1.10.1
+      - io.okdp:okdp-spark-auth-filter:1.4.2
+      - https://github.com/prometheus/jmx_exporter/releases/download/1.5.0/jmx_prometheus_javaagent-1.5.0.jar
   # https://spark.apache.org/releases/spark-release-3-5-0.html
   # # Minimum supported java version: 17/21
   - python_version: 3.11
@@ -48,3 +63,23 @@ versions:
     java_version: [17]
     scala_version: [2.12, 2.13]
     hadoop_version: 3.3.6
+    packages:
+      # List of extra runtime jars to bake into the Spark image.
+      #
+      # Supported entry types:
+      # - Maven coordinates:
+      #     groupId:artifactId:version
+      #     groupId:artifactId:version:type
+      #     groupId:artifactId:version:type:classifier
+      # - Direct jar URL:
+      #     https://...
+      #
+      # Notes:
+      # - ${scala_version} is replaced during matrix expansion with the current Scala version.
+      # - Maven coordinates are resolved with Maven, including transitive dependencies.
+      # - Direct URLs are downloaded as-is and do not resolve transitive dependencies.
+      # - Keep this list compatible with the current Spark / Scala line.
+      - org.apache.iceberg:iceberg-spark-runtime-3.5_${scala_version}:1.10.1
+      - org.apache.iceberg:iceberg-aws-bundle:1.10.1
+      - io.okdp:okdp-spark-auth-filter:1.4.2
+      - https://github.com/prometheus/jmx_exporter/releases/download/1.5.0/jmx_prometheus_javaagent-1.5.0.jar
