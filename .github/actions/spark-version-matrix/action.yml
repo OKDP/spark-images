@@ -32,24 +32,58 @@ runs:
   steps:
     - name: Generate Matrix
       id: generate-matrix
-      run: |
+      run: |        
+          INPUT_MATRIX=$(yq -oj ${{ inputs.use_matrix }} | jq ' .versions | [ 
+            .[] as $v
+            | $v.spark_version[] as $spark
+            | $v.scala_version[] as $scala
+            | $v.java_version[] as $java
+            | {
+                python_version: $v.python_version,
+                hadoop_version: $v.hadoop_version,
+                spark_version: $spark,
+                scala_version: $scala,
+                java_version: $java,
+                packages: (
+                  ($v.packages // [])
+                  | map(gsub("\\$\\{scala_version\\}"; ($scala | tostring)))
+                  | join(",")
+                )
+            }
+          ]' | jq -c '.')
 
-          INPUT_MATRIX=$(yq -oj ${{ inputs.use_matrix }} | jq '.versions | .[] | 
-               {python_version: .python_version, 
-               hadoop_version: .hadoop_version} + 
-               (.spark_version[] | {spark_version: .}) + 
-               (.scala_version[] | {scala_version: .}) +
-               (.java_version[] | {java_version: .})' | jq -c --slurp '.')
-          REF_MATRIX=$(yq -oj .build/reference-versions.yml | jq '.versions | .[] | 
-               {python_version: .python_version, 
-               hadoop_version: .hadoop_version} + 
-               (.spark_version[] | {spark_version: .}) + 
-               (.scala_version[] | {scala_version: .}) +
-               (.java_version[] | {java_version: .})' | jq -c --slurp '.')
+          REF_MATRIX=$(yq -oj .build/reference-versions.yml | jq ' .versions | [
+            .[] as $v
+            | $v.spark_version[] as $spark
+            | $v.scala_version[] as $scala
+            | $v.java_version[] as $java
+            | {
+                python_version: $v.python_version,
+                hadoop_version: $v.hadoop_version,
+                spark_version: $spark,
+                scala_version: $scala,
+                java_version: $java
+            }
+          ]' | jq -c '.')
 
           ### Intersection between the versions matrix and the reference versions matrix 
           ### When the intersection is empty, the jobs are skipped!
-          MATRIX=$(jq --argjson IN ${INPUT_MATRIX} --argjson REF ${REF_MATRIX} -cn '$IN - ($IN- $REF)')
+          MATRIX=$(jq --argjson IN "${INPUT_MATRIX}" --argjson REF "${REF_MATRIX}" -cn '
+            $IN | 
+              map(
+                . as $row | 
+                  select(
+                    $REF
+                    | index({
+                        python_version: $row.python_version,
+                        hadoop_version: $row.hadoop_version,
+                        spark_version: $row.spark_version,
+                        scala_version: $row.scala_version,
+                        java_version: $row.java_version
+                      })
+                  )
+              )'
+          )
 
           LENGHT=$(echo ${MATRIX} | jq '. | length')
           echo "${MATRIX}"

@@ -44,6 +44,11 @@ on:
         description: Python version
         required: true
         type: string
+      packages:
+        description: Comma-separated list of extra maven style jars to bake into the Spark image.
+        required: false
+        type: string
+        default: ""
       publish_to_registry:
         description: Wheter to push to the registry
         required: false
@@ -63,15 +68,15 @@ on:
         required: false
         type: string
         default: ""
-      runs-on:
-        description: GitHub Actions Runner image
-        required: true
-        type: string
       enable_patch_pombump:
         description: Enable patch-pombump
         required: false
         type: boolean
         default: true
+      runs-on:
+        description: GitHub Actions Runner image
+        required: true
+        type: string
 
 jobs:
   
@@ -115,7 +120,7 @@ jobs:
           spark_version: ${{ inputs.spark_version}}
           scala_version: ${{ inputs.scala_version }}
           java_version: ${{ inputs.java_version }}
-          python_version: ${{ inputs.python_version}}
+          python_version: ${{ inputs.python_version }}
           ci_repo: ${{ steps.registry-repos.outputs.ci_repo }}
           publish_repo: ${{ steps.registry-repos.outputs.publish_repo }}
           publish_to_registry: ${{ inputs.publish_to_registry }}
@@ -152,6 +157,7 @@ jobs:
             JAVA_VERSION=${{ inputs.java_version }}
             PYTHON_VERSION=${{ inputs.python_version }}
             HADOOP_VERSION=${{ inputs.hadoop_version }}
+            SPARK_PACKAGES=${{ inputs.packages }}
             BASE_IMAGE=${{ steps.image-tags.outputs.parent_image }}
           tags: |
             ${{ steps.registry-repos.outputs.ci_repo }}/${{ inputs.image }}:${{ steps.image-tags.outputs.latest_tag }}
@@ -222,6 +228,7 @@ jobs:
             JAVA_VERSION=${{ inputs.java_version }}
             PYTHON_VERSION=${{ inputs.python_version }}
             HADOOP_VERSION=${{ inputs.hadoop_version }}
+            SPARK_PACKAGES=${{ inputs.packages }}
             BASE_IMAGE=${{ steps.image-tags.outputs.parent_image }}
           tags: ${{ steps.image-tags.outputs.publish_tags }}
           labels: |

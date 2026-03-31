@@ -82,4 +82,5 @@ jobs:
       java_version: ${{ matrix.version.java_version }}
       scala_version: ${{ matrix.version.scala_version }}
       hadoop_version: ${{ matrix.version.hadoop_version }}
+      packages: ${{ matrix.version.packages }}
       publish_to_registry: "false"

@@ -101,6 +101,7 @@ jobs:
       java_version: ${{ matrix.version.java_version }}
       scala_version: ${{ matrix.version.scala_version }}
       hadoop_version: ${{ matrix.version.hadoop_version }}
+      packages: ${{ matrix.version.packages }}
       registry: ${{ vars.REGISTRY || 'quay.io' }}
       publish_to_registry: "true"
       git_latest_release_tag: ${{ needs.latest-github-release.outputs.tag_name }}
