@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.1.0](https://github.com/OKDP/spark-images/compare/v2.0.3...v2.1.0) (2026-04-01)
+
+
+### Features
+
+* add dynamic Spark package resolution for image builds ([208caae](https://github.com/OKDP/spark-images/commit/208caae39515c1a4aaaa5c4c8c9d67804d3fb901))
+* add Iceberg (polaris) support for spark images ([a17ea67](https://github.com/OKDP/spark-images/commit/a17ea670652e5a070a4e8fef644e516fa819b3a4))
+
 ## [2.0.3](https://github.com/OKDP/spark-images/compare/v2.0.2...v2.0.3) (2026-02-05)
 
 
