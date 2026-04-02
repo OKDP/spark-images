@@ -279,7 +279,7 @@ jobs:
           echo "name=signing-artifacts-${{ matrix.image }}-${{ matrix.version.spark_version }}-${TIMESTAMP}" >> $GITHUB_OUTPUT
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         continue-on-error: true  # Make this step non-fatal
         with:
           name: ${{ steps.artifact-name.outputs.name }}
