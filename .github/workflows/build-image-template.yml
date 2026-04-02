@@ -146,7 +146,7 @@ jobs:
 
       - name: Build and push to ci registry
         if: inputs.publish_to_registry == 'false'
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ${{ inputs.image }}
           platforms: linux/amd64,linux/arm64           
@@ -217,7 +217,7 @@ jobs:
 
       - name: Build and push to official registry 📤
         if: inputs.publish_to_registry == 'true'
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ${{ inputs.image }}
           platforms: linux/amd64,linux/arm64   
