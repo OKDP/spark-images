@@ -45,16 +45,16 @@ images:
   - name: spark-r
     dependsOn: spark
     tags:
-      - spark-${spark_version}-r-${r_version}-scala-${scala_version}-java-${java_version}
-      - spark-${spark_version}-r-${r_version}-scala-${scala_version}-java-${java_version}-$(date '+%Y-%m-%d')
-      - spark-${spark_version}-r-${r_version}-scala-${scala_version}-java-${java_version}-${git_release_version}
-      - spark-${spark_version}-r-${r_version}-scala-${scala_version}-java-${java_version}-$(date '+%Y-%m-%d')-${git_release_version}
-      #- spark-${spark_version}-r-${r_version}-scala-${scala_version}-java-${java_version}-${git_commit_short_sha}
+      - spark-${spark_version}-r--scala-${scala_version}-java-${java_version}
+      - spark-${spark_version}-r--scala-${scala_version}-java-${java_version}-$(date '+%Y-%m-%d')
+      - spark-${spark_version}-r--scala-${scala_version}-java-${java_version}-${git_release_version}
+      - spark-${spark_version}-r--scala-${scala_version}-java-${java_version}-$(date '+%Y-%m-%d')-${git_release_version}
+      #- spark-${spark_version}-r--scala-${scala_version}-java-${java_version}-${git_commit_short_sha}
   - name: spark-py-r
     dependsOn: spark-py
     tags:
-      - spark-${spark_version}-python-${python_version}-r-${r_version}-scala-${scala_version}-java-${java_version}
-      - spark-${spark_version}-python-${python_version}-r-${r_version}-scala-${scala_version}-java-${java_version}-$(date '+%Y-%m-%d')
-      - spark-${spark_version}-python-${python_version}-r-${r_version}-scala-${scala_version}-java-${java_version}-${git_release_version}
-      - spark-${spark_version}-python-${python_version}-r-${r_version}-scala-${scala_version}-java-${java_version}-$(date '+%Y-%m-%d')-${git_release_version}
-      #- spark-${spark_version}-python-${python_version}-r-${r_version}-scala-${scala_version}-java-${java_version}-${git_commit_short_sha}
+      - spark-${spark_version}-python-${python_version}-r--scala-${scala_version}-java-${java_version}
+      - spark-${spark_version}-python-${python_version}-r--scala-${scala_version}-java-${java_version}-$(date '+%Y-%m-%d')
+      - spark-${spark_version}-python-${python_version}-r--scala-${scala_version}-java-${java_version}-${git_release_version}
+      - spark-${spark_version}-python-${python_version}-r--scala-${scala_version}-java-${java_version}-$(date '+%Y-%m-%d')-${git_release_version}
+      #- spark-${spark_version}-python-${python_version}-r--scala-${scala_version}-java-${java_version}-${git_commit_short_sha}
