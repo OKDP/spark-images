@@ -170,8 +170,6 @@ The short tag without `<BUILD_DATE>` and `<RELEASE_VERSION>` always points to th
 - [Official Apache Spark Docker images](https://github.com/apache/spark-docker) — Spark on Docker Hub maintained by the ASF.
 - [Bitnami Spark](https://hub.docker.com/r/bitnami/spark) — Bitnami-packaged Spark images.
 
-OKDP differs from those by rebuilding from source with pombump-applied dependency bumps and by bundling the OKDP runtime jars; see [Why this project](#why-this-project).
-
 ## Build
 
 The whole build matrix runs on GitHub Actions:
