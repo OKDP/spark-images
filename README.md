@@ -29,16 +29,6 @@ This repository builds and publishes four Apache Spark container images to `quay
 
 All four are produced by the matrix defined in [`.build/ci-versions.yml`](.build/ci-versions.yml).
 
-## Components
-
-| Image          | Description                                                                                                                                                       |
-|:---------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `JRE`          | Upstream `eclipse-temurin:<JAVA_VERSION>-jre-jammy` base image. Java 11 or 17 depending on the Spark line (see [`.build/reference-versions.yml`](.build/reference-versions.yml)). |
-| `spark-base`   | Apache Spark distribution built from source, **without** OKDP runtime jars.                                                                                       |
-| `spark`        | `spark-base` + OKDP runtime jars (Iceberg, OIDC auth filter, JMX javaagent).                                                                                       |
-| `spark-py`     | `spark` + Python support (default `python3.11`).                                                                                                                   |
-| `spark-r`      | `spark` + R support (R from the Ubuntu base `r-base` package).                                                                                                     |
-
 ## Architecture
 
 The four image variants form a strict inheritance chain. `spark-base` provides the Spark distribution; `spark` layers the OKDP runtime jars; `spark-py` and `spark-r` extend `spark` with language runtimes. See the upstream [Apache Spark cluster overview](https://spark.apache.org/docs/latest/cluster-overview.html) for how a Spark application uses these images at runtime.
@@ -47,7 +37,7 @@ The four image variants form a strict inheritance chain. `spark-base` provides t
  <img src="docs/images/spark-images.drawio.svg" alt="Image inheritance chain">
 </p>
 
-## Prerequisites
+## Requirements
 
 - [Docker](https://www.docker.com/) with multi-stage build support.
 - Enough free disk for the image (the published `spark` image is ~3.5 GB).
@@ -121,20 +111,6 @@ When the first argument is neither `driver` nor `executor`, the entrypoint `exec
 docker run --rm -it quay.io/okdp/spark:spark-3.5.6-scala-2.13-java-17 /opt/spark/bin/spark-shell
 ```
 
-## Cleanup
-
-Remove a single pulled image:
-
-```sh
-docker rmi quay.io/okdp/spark:spark-3.5.6-scala-2.13-java-17
-```
-
-Free all dangling images and stopped containers from local re-builds:
-
-```sh
-docker system prune
-```
-
 ## Configuration
 
 The image build behaviour is controlled by a small set of build arguments. The full default list lives in the Dockerfiles ([`spark-base`](spark-base/Dockerfile), [`spark`](spark/Dockerfile), [`spark-py`](spark-py/Dockerfile), [`spark-r`](spark-r/Dockerfile)); the CI matrix overrides them per combination in [`.build/ci-versions.yml`](.build/ci-versions.yml).
@@ -165,6 +141,20 @@ quay.io/okdp/spark-py:spark-3.5.6-python-3.11-scala-2.13-java-17-2026-05-26-2.1.
 
 The short tag without `<BUILD_DATE>` and `<RELEASE_VERSION>` always points to the latest rebuild.
 
+## Components
+
+| Image          | Description                                                                                                                                                       |
+|:---------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `JRE`          | Upstream `eclipse-temurin:<JAVA_VERSION>-jre-jammy` base image. Java 11 or 17 depending on the Spark line (see [`.build/reference-versions.yml`](.build/reference-versions.yml)). |
+| `spark-base`   | Apache Spark distribution built from source, **without** OKDP runtime jars.                                                                                       |
+| `spark`        | `spark-base` + OKDP runtime jars (Iceberg, OIDC auth filter, JMX javaagent).                                                                                       |
+| `spark-py`     | `spark` + Python support (default `python3.11`).                                                                                                                   |
+| `spark-r`      | `spark` + R support (R from the Ubuntu base `r-base` package).                                                                                                     |
+
+## OKDP Integration
+
+These images are consumed by the [`OKDP/okdp-sandbox`](https://github.com/OKDP/okdp-sandbox) packages — the Spark Operator uses `spark-py` as the default job image, and the Spark History Server is built on top of the `spark` image.
+
 ## Build
 
 The whole build matrix runs on GitHub Actions:
@@ -193,14 +183,28 @@ In CI, every PR runs the upstream [Apache Spark Kubernetes integration tests](ht
 
 All four `Run SparkPi` integration steps pass on every Spark × Scala × Java combination declared in [`.build/ci-versions.yml`](.build/ci-versions.yml). The matrix wiring lives in [`ci.yml`](.github/workflows/ci.yml).
 
+## Cleanup
+
+Remove a single pulled image:
+
+```sh
+docker rmi quay.io/okdp/spark:spark-3.5.6-scala-2.13-java-17
+```
+
+Free all dangling images and stopped containers from local re-builds:
+
+```sh
+docker system prune
+```
+
 ## Alternatives
 
 - [Official Apache Spark Docker images](https://github.com/apache/spark-docker) — Spark on Docker Hub maintained by the ASF.
 - [Bitnami Spark](https://hub.docker.com/r/bitnami/spark) — Bitnami-packaged Spark images.
 
-## License
+## Contributing & License
 
-[Apache License 2.0](LICENSE)
+Contributions follow the [OKDP contribution guide](https://github.com/OKDP/.github/blob/main/CONTRIBUTING.md). Released under the [Apache License 2.0](LICENSE).
 
 ---
 
