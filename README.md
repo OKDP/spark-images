@@ -165,11 +165,6 @@ quay.io/okdp/spark-py:spark-3.5.6-python-3.11-scala-2.13-java-17-2026-05-26-2.1.
 
 The short tag without `<BUILD_DATE>` and `<RELEASE_VERSION>` always points to the latest rebuild.
 
-## Alternatives
-
-- [Official Apache Spark Docker images](https://github.com/apache/spark-docker) — Spark on Docker Hub maintained by the ASF.
-- [Bitnami Spark](https://hub.docker.com/r/bitnami/spark) — Bitnami-packaged Spark images.
-
 ## Build
 
 The whole build matrix runs on GitHub Actions:
@@ -197,6 +192,11 @@ In CI, every PR runs the upstream [Apache Spark Kubernetes integration tests](ht
 - Invokes `build/sbt 'kubernetes-integration-tests/testOnly -- -z "Run SparkPi"'` with one step per image variant (`spark-base` / `spark`, `spark-py`, `spark-r`).
 
 All four `Run SparkPi` integration steps pass on every Spark × Scala × Java combination declared in [`.build/ci-versions.yml`](.build/ci-versions.yml). The matrix wiring lives in [`ci.yml`](.github/workflows/ci.yml).
+
+## Alternatives
+
+- [Official Apache Spark Docker images](https://github.com/apache/spark-docker) — Spark on Docker Hub maintained by the ASF.
+- [Bitnami Spark](https://hub.docker.com/r/bitnami/spark) — Bitnami-packaged Spark images.
 
 ## License
 
