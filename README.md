@@ -1,3 +1,9 @@
+<p align="center">
+  <a href="https://okdp.io">
+    <img src="https://okdp.io/logos/okdp-inverted.png" alt="OKDP — Open Kubernetes Data Platform" height="180" />
+  </a>
+</p>
+
 [![ci](https://github.com/OKDP/spark-images/actions/workflows/ci.yml/badge.svg)](https://github.com/OKDP/spark-images/actions/workflows/ci.yml)
 [![release-please](https://github.com/OKDP/spark-images/actions/workflows/release-please.yml/badge.svg)](https://github.com/OKDP/spark-images/actions/workflows/release-please.yml)
 [![Release](https://img.shields.io/github/v/release/OKDP/spark-images)](https://github.com/OKDP/spark-images/releases/latest)
