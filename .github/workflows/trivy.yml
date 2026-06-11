@@ -30,7 +30,6 @@ concurrency:
 permissions:
   actions: read
   contents: read
-  security-events: write
 
 jobs:
   latest-github-release:
@@ -40,7 +39,9 @@ jobs:
       tag_name: ${{ steps.git-release-tag.outputs.tag_name }}
     steps:
       - name: Checkout Repo ⚡️
-        uses: actions/checkout@9f698171ed81b15d1823a05fc7211befd50c8ae0 # v6.0.3
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
 
       - name: Get latest GitHub Release tag name 📥
         id: git-release-tag
@@ -71,27 +72,35 @@ jobs:
       spark_r_matrix: ${{ steps.spark-trivy-matrix.outputs.spark_r_matrix }}
     steps:
       - name: Checkout latest Github Release tag (${{ needs.latest-github-release.outputs.tag_name }}) ⚡️
-        uses: actions/checkout@9f698171ed81b15d1823a05fc7211befd50c8ae0 # v6.0.3
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
 
       - name: Generate Trivy scan matrices 📦
         id: spark-trivy-matrix
         uses: ./.github/actions/spark-trivy-matrix
         with:
           use_matrix: ".build/release-versions.yml"
+          images_file: ".build/images.yml"
           git_tag_name: ${{ needs.latest-github-release.outputs.tag_name }}
           registry: ${{ vars.REGISTRY || 'quay.io' }}
+          repository_owner: ${{ github.repository_owner }}
 
   spark-base:
     if: github.repository_owner == 'OKDP' && needs.generate-trivy-matrix.outputs.spark_base_matrix != '{"include":[]}'
     name: spark-base (${{ needs.latest-github-release.outputs.tag_name }}/${{ matrix.spark_version }})
     needs: [latest-github-release, generate-trivy-matrix]
     runs-on: "ubuntu-latest"
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.generate-trivy-matrix.outputs.spark_base_matrix) }}
     steps:
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@a9c7b0f06e461e9d4b4d1711f154ee024b8d7ab8 # v0.36.0
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           image-ref: ${{ matrix.image }}
           format: sarif
@@ -99,7 +108,7 @@ jobs:
           severity: CRITICAL,HIGH
 
       - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@1a818fd5f97ed0ee9a823421bd5b171add01227f # v4.36.2
+        uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
         with:
           sarif_file: trivy-results-${{ matrix.image_tag }}.sarif
           category: trivy-spark-base-${{ matrix.image_tag }}
@@ -109,12 +118,16 @@ jobs:
     name: spark (${{ needs.latest-github-release.outputs.tag_name }}/${{ matrix.spark_version }})
     needs: [latest-github-release, generate-trivy-matrix]
     runs-on: "ubuntu-latest"
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.generate-trivy-matrix.outputs.spark_matrix) }}
     steps:
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@a9c7b0f06e461e9d4b4d1711f154ee024b8d7ab8 # v0.36.0
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           image-ref: ${{ matrix.image }}
           format: sarif
@@ -122,7 +135,7 @@ jobs:
           severity: CRITICAL,HIGH
 
       - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@1a818fd5f97ed0ee9a823421bd5b171add01227f # v4.36.2
+        uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
         with:
           sarif_file: trivy-results-${{ matrix.image_tag }}.sarif
           category: trivy-spark-${{ matrix.image_tag }}
@@ -132,12 +145,16 @@ jobs:
     name: spark-py (${{ needs.latest-github-release.outputs.tag_name }}/${{ matrix.spark_version }})
     needs: [latest-github-release, generate-trivy-matrix]
     runs-on: "ubuntu-latest"
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.generate-trivy-matrix.outputs.spark_py_matrix) }}
     steps:
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@a9c7b0f06e461e9d4b4d1711f154ee024b8d7ab8 # v0.36.0
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           image-ref: ${{ matrix.image }}
           format: sarif
@@ -145,7 +162,7 @@ jobs:
           severity: CRITICAL,HIGH
 
       - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@1a818fd5f97ed0ee9a823421bd5b171add01227f # v4.36.2
+        uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
         with:
           sarif_file: trivy-results-${{ matrix.image_tag }}.sarif
           category: trivy-spark-py-${{ matrix.image_tag }}
@@ -155,12 +172,16 @@ jobs:
     name: spark-r (${{ needs.latest-github-release.outputs.tag_name }}/${{ matrix.spark_version }})
     needs: [latest-github-release, generate-trivy-matrix]
     runs-on: "ubuntu-latest"
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.generate-trivy-matrix.outputs.spark_r_matrix) }}
     steps:
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@a9c7b0f06e461e9d4b4d1711f154ee024b8d7ab8 # v0.36.0
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           image-ref: ${{ matrix.image }}
           format: sarif
@@ -168,7 +189,7 @@ jobs:
           severity: CRITICAL,HIGH
 
       - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@1a818fd5f97ed0ee9a823421bd5b171add01227f # v4.36.2
+        uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
         with:
           sarif_file: trivy-results-${{ matrix.image_tag }}.sarif
           category: trivy-spark-r-${{ matrix.image_tag }}

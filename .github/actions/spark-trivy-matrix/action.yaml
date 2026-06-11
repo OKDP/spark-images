@@ -22,6 +22,10 @@ inputs:
     description: The matrix version file to use
     required: false
     default: ".build/release-versions.yml"
+  images_file:
+    description: The image tag definition file to use
+    required: false
+    default: ".build/images.yml"
   git_tag_name:
     description: The Git remote latest tag name
     required: true
@@ -29,6 +33,9 @@ inputs:
     description: The container registry
     required: false
     default: "quay.io"
+  repository_owner:
+    description: The repository owner used to build published image references
+    required: true
 
 outputs:
   spark_base_matrix:
@@ -49,8 +56,11 @@ runs:
   steps:
     - name: Install yq
       run: |
-        sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/v4.42.1/yq_linux_amd64
-        sudo chmod a+x /usr/local/bin/yq
+        YQ_VERSION="v4.53.3"
+        YQ_SHA256="fa52a4e758c63d38299163fbdd1edfb4c4963247918bf9c1c5d31d84789eded4"
+        curl -fsSLo yq "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64"
+        echo "${YQ_SHA256}  yq" | sha256sum -c -
+        sudo install -m 0755 yq /usr/local/bin/yq
       shell: bash
 
     - name: Get release versions matrix 📥
@@ -63,12 +73,14 @@ runs:
       id: scan-matrix
       env:
         GIT_TAG_NAME: ${{ inputs.git_tag_name }}
+        IMAGES_FILE: ${{ inputs.images_file }}
         RELEASE_MATRIX: ${{ steps.release-versions.outputs.matrix }}
         REGISTRY: ${{ inputs.registry }}
+        REPOSITORY_OWNER: ${{ inputs.repository_owner }}
       run: |
         set -euo pipefail
 
-        repo_owner="$(printf "%s" "${GITHUB_REPOSITORY_OWNER}" | tr "[:upper:]" "[:lower:]")"
+        repo_owner="$(printf "%s" "${REPOSITORY_OWNER}" | tr "[:upper:]" "[:lower:]")"
         publish_repo="${REGISTRY}/${repo_owner}"
         git_release_version="${GIT_TAG_NAME#v}"
 
@@ -87,7 +99,7 @@ runs:
           local tags
           local date_token
 
-          tags="$(yq -oj ".images[] | select(.name == \"${image}\").tags" .build/images.yml | jq -r '.[]')"
+          tags="$(yq -oj ".images[] | select(.name == \"${image}\").tags" "${IMAGES_FILE}" | jq -r '.[]')"
           date_token="\$(date '+%Y-%m-%d')"
 
           while read -r tag_template; do

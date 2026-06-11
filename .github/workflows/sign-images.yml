@@ -28,7 +28,6 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  packages: write
   contents: read
 
 jobs:
@@ -38,7 +37,9 @@ jobs:
       matrix: ${{ steps.ci-versions.outputs.matrix }}
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
         
       - name: Get CI versions matrix
         id: ci-versions
@@ -50,6 +51,9 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
     needs: [get-ci-versions]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     strategy:
       fail-fast: false
       matrix:
@@ -58,7 +62,9 @@ jobs:
 
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
 
       - name: Set up CI registry
         id: registry-repos
@@ -79,24 +85,27 @@ jobs:
           publish_to_registry: "false"
 
       - name: Login to CI registry
-        uses: docker/login-action@v4
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install tools
+      - name: Install Syft
+        id: syft
+        uses: anchore/sbom-action/download-syft@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
+        with:
+          syft-version: v1.45.1
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+        with:
+          cosign-release: v3.1.1
+
+      - name: Install jq
         run: |
-          # Install syft
-          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
-          
-          # Install cosign
-          wget -q https://github.com/sigstore/cosign/releases/download/v2.1.1/cosign-linux-amd64
-          chmod +x cosign-linux-amd64
-          sudo mv cosign-linux-amd64 /usr/local/bin/cosign
-          
-          # Install jq for JSON validation
-          sudo apt-get update && sudo apt-get install -y jq
+          sudo apt-get update
+          sudo apt-get install -y jq
 
       - name: Generate cosign keypair
         run: |
@@ -111,6 +120,8 @@ jobs:
 
       - name: Pull and generate SBOM
         id: sbom
+        env:
+          SYFT_CMD: ${{ steps.syft.outputs.cmd }}
         run: |
           # Set image URL
           IMAGE_URL="${{ steps.registry-repos.outputs.ci_repo }}/${{ matrix.image }}:${{ steps.image-tags.outputs.latest_tag }}"
@@ -123,7 +134,7 @@ jobs:
           # Generate SBOM
           echo "Generating SBOM..."
           SBOM_FILE="${{ matrix.image }}-${{ steps.image-tags.outputs.latest_tag }}.sbom.json"
-          syft ${IMAGE_URL} -o spdx-json > ${SBOM_FILE}
+          "${SYFT_CMD}" ${IMAGE_URL} -o spdx-json > ${SBOM_FILE}
           echo "sbom_file=${SBOM_FILE}" >> $GITHUB_OUTPUT
           echo "✅ SBOM generated: ${SBOM_FILE}"
 
@@ -279,12 +290,11 @@ jobs:
           echo "name=signing-artifacts-${{ matrix.image }}-${{ matrix.version.spark_version }}-${TIMESTAMP}" >> $GITHUB_OUTPUT
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         continue-on-error: true  # Make this step non-fatal
         with:
           name: ${{ steps.artifact-name.outputs.name }}
           path: |
             ${{ steps.sbom.outputs.sbom_file }}
-            cosign.key
             cosign.pub
           retention-days: 30

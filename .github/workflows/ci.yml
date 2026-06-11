@@ -50,7 +50,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  packages: write
+  contents: read
   
 jobs:
 
@@ -60,7 +60,9 @@ jobs:
       matrix: ${{ steps.ci-versions.outputs.matrix }}
     steps:
       - name: Checkout Repo ⚡️
-        uses: actions/checkout@v4
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
 
       - name: Get CI versions matrix 📥
         id: ci-versions
@@ -71,6 +73,9 @@ jobs:
   spark-ci:
     name: spark-ci (spark-${{ matrix.version.spark_version }})
     needs: [get-ci-versions]
+    permissions:
+      contents: read
+      packages: write
     strategy:
       fail-fast: false
       matrix: 
