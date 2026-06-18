@@ -24,7 +24,7 @@ ARG BASE_IMAGE=${REGISTRY}/${REPO}/spark-base:spark-${SPARK_VERSION}-scala-${SCA
 
 FROM maven:3.9.15-eclipse-temurin-26 AS builder
 
-ARG SPARK_PACKAGES="org.apache.iceberg:iceberg-spark-runtime-3.5_2.13:1.10.1,org.apache.iceberg:iceberg-aws-bundle:1.10.1,io.okdp:okdp-spark-auth-filter:1.4.2,https://github.com/prometheus/jmx_exporter/releases/download/1.5.0/jmx_prometheus_javaagent-1.5.0.jar"
+ARG SPARK_PACKAGES="org.apache.iceberg:iceberg-spark-runtime-3.5_2.13:1.10.1,org.apache.iceberg:iceberg-aws-bundle:1.10.1,io.okdp:okdp-spark-auth-filter:1.4.3,https://github.com/prometheus/jmx_exporter/releases/download/1.5.0/jmx_prometheus_javaagent-1.5.0.jar"
 
 WORKDIR /build
 
