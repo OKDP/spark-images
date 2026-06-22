@@ -51,7 +51,7 @@ jobs:
       tag_name: ${{ steps.git-release-tag.outputs.tag_name }}
     steps:
       - name: Checkout Repo ⚡️
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Get latest GitHub Release tag name 📥
         id: git-release-tag
@@ -78,7 +78,7 @@ jobs:
       matrix: ${{ steps.release-versions.outputs.matrix }}
     steps:
       - name: Checkout Repo ⚡️
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Get release versions matrix 📥
         id: release-versions
