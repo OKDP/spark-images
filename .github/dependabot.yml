@@ -24,6 +24,7 @@ updates:
     labels:
       - "dependencies"
       - "docker"
+    open-pull-requests-limit: 0
     commit-message:
       prefix: "chore(update)"
 
@@ -35,6 +36,7 @@ updates:
     labels:
       - "dependencies"
       - "docker"
+    open-pull-requests-limit: 0
     commit-message:
       prefix: "chore(update)"
 
@@ -46,6 +48,7 @@ updates:
     labels:
       - "dependencies"
       - "docker"
+    open-pull-requests-limit: 0
     commit-message:
       prefix: "chore(update)"
 
@@ -57,6 +60,7 @@ updates:
     labels:
       - "dependencies"
       - "docker"
+    open-pull-requests-limit: 0
     commit-message:
       prefix: "chore(update)"
 
@@ -68,5 +72,6 @@ updates:
     labels:
       - "dependencies"
       - "github-actions"
+    open-pull-requests-limit: 0
     commit-message:
       prefix: "chore(update)"
