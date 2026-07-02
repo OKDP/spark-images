@@ -21,7 +21,7 @@ runs:
   using: composite
   steps:
     - name: Create k8s Kind Cluster
-      uses: helm/kind-action@v1
+      uses: helm/kind-action@ef37e7f390d99f746eb8b610417061a60e82a6cc # v1.14.0
       with:
         # https://github.com/helm/kind-action?tab=readme-ov-file#inputs
         verbosity: 10

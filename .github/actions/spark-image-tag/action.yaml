@@ -62,16 +62,19 @@ runs:
   steps:
     - name: Install yq
       run: |
-         sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/v4.42.1/yq_linux_amd64
-         sudo chmod a+x /usr/local/bin/yq
+         YQ_VERSION="v4.53.3"
+         YQ_SHA256="fa52a4e758c63d38299163fbdd1edfb4c4963247918bf9c1c5d31d84789eded4"
+         curl -fsSLo yq "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64"
+         echo "${YQ_SHA256}  yq" | sha256sum -c -
+         sudo install -m 0755 yq /usr/local/bin/yq
       shell: bash
       
     - name: Expose git commit sha as env variable
-      uses: rlespinasse/git-commit-data-action@v1.5.0
+      uses: rlespinasse/git-commit-data-action@2b76766acf9574c24b5cec7608be8db5dc17968e # v1.5.0
 
     - name: Get current branch 📦
       id: git-branch
-      uses: tj-actions/branch-names@v8
+      uses: tj-actions/branch-names@5250492686b253f06fa55861556d1027b067aeb5 # v9.0.2
 
     - name: Generate spark image tags 📦
       id: tags

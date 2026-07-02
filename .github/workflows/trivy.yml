@@ -1,0 +1,197 @@
+#
+# Copyright 2026 The OKDP Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+name: trivy
+
+on:
+  workflow_run:
+    workflows: ["publish"]
+    types:
+      - completed
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  latest-github-release:
+    if: github.repository_owner == 'OKDP' && (github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success')
+    runs-on: "ubuntu-latest"
+    outputs:
+      tag_name: ${{ steps.git-release-tag.outputs.tag_name }}
+    steps:
+      - name: Checkout Repo ⚡️
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+
+      - name: Get latest GitHub Release tag name 📥
+        id: git-release-tag
+        uses: InsonusK/get-latest-release@7a9ff16c8c6b7ead5d71c0f1cc61f2703170eade # v1.1.0
+        with:
+          myToken: ${{ github.token }}
+          exclude_types: "draft"
+          view_top: 1
+
+      - name: Info - Found latest release tag
+        run: |
+          echo "id: ${{ steps.git-release-tag.outputs.id }}"
+          echo "name: ${{ steps.git-release-tag.outputs.name }}"
+          echo "tag_name: ${{ steps.git-release-tag.outputs.tag_name }}"
+          echo "created_at: ${{ steps.git-release-tag.outputs.created_at }}"
+          echo "draft: ${{ steps.git-release-tag.outputs.draft }}"
+          echo "prerelease: ${{ steps.git-release-tag.outputs.prerelease }}"
+        shell: bash
+
+  generate-trivy-matrix:
+    if: github.repository_owner == 'OKDP' && needs.latest-github-release.outputs.tag_name != ''
+    needs: [latest-github-release]
+    runs-on: "ubuntu-latest"
+    outputs:
+      spark_base_matrix: ${{ steps.spark-trivy-matrix.outputs.spark_base_matrix }}
+      spark_matrix: ${{ steps.spark-trivy-matrix.outputs.spark_matrix }}
+      spark_py_matrix: ${{ steps.spark-trivy-matrix.outputs.spark_py_matrix }}
+      spark_r_matrix: ${{ steps.spark-trivy-matrix.outputs.spark_r_matrix }}
+    steps:
+      - name: Checkout latest Github Release tag (${{ needs.latest-github-release.outputs.tag_name }}) ⚡️
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+
+      - name: Generate Trivy scan matrices 📦
+        id: spark-trivy-matrix
+        uses: ./.github/actions/spark-trivy-matrix
+        with:
+          use_matrix: ".build/release-versions.yml"
+          images_file: ".build/images.yml"
+          git_tag_name: ${{ needs.latest-github-release.outputs.tag_name }}
+          registry: ${{ vars.REGISTRY || 'quay.io' }}
+          repository_owner: ${{ github.repository_owner }}
+
+  spark-base:
+    if: github.repository_owner == 'OKDP' && needs.generate-trivy-matrix.outputs.spark_base_matrix != '{"include":[]}'
+    name: spark-base (${{ needs.latest-github-release.outputs.tag_name }}/${{ matrix.spark_version }})
+    needs: [latest-github-release, generate-trivy-matrix]
+    runs-on: "ubuntu-latest"
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.generate-trivy-matrix.outputs.spark_base_matrix) }}
+    steps:
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: ${{ matrix.image }}
+          format: sarif
+          output: trivy-results-${{ matrix.image_tag }}.sarif
+          severity: CRITICAL,HIGH
+          scanners: vuln
+          timeout: 20m
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
+        with:
+          sarif_file: trivy-results-${{ matrix.image_tag }}.sarif
+          category: trivy-spark-base-${{ matrix.image_tag }}
+
+  spark:
+    if: github.repository_owner == 'OKDP' && needs.generate-trivy-matrix.outputs.spark_matrix != '{"include":[]}'
+    name: spark (${{ needs.latest-github-release.outputs.tag_name }}/${{ matrix.spark_version }})
+    needs: [latest-github-release, generate-trivy-matrix]
+    runs-on: "ubuntu-latest"
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.generate-trivy-matrix.outputs.spark_matrix) }}
+    steps:
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: ${{ matrix.image }}
+          format: sarif
+          output: trivy-results-${{ matrix.image_tag }}.sarif
+          severity: CRITICAL,HIGH
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
+        with:
+          sarif_file: trivy-results-${{ matrix.image_tag }}.sarif
+          category: trivy-spark-${{ matrix.image_tag }}
+
+  spark-py:
+    if: github.repository_owner == 'OKDP' && needs.generate-trivy-matrix.outputs.spark_py_matrix != '{"include":[]}'
+    name: spark-py (${{ needs.latest-github-release.outputs.tag_name }}/${{ matrix.spark_version }})
+    needs: [latest-github-release, generate-trivy-matrix]
+    runs-on: "ubuntu-latest"
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.generate-trivy-matrix.outputs.spark_py_matrix) }}
+    steps:
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: ${{ matrix.image }}
+          format: sarif
+          output: trivy-results-${{ matrix.image_tag }}.sarif
+          severity: CRITICAL,HIGH
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
+        with:
+          sarif_file: trivy-results-${{ matrix.image_tag }}.sarif
+          category: trivy-spark-py-${{ matrix.image_tag }}
+
+  spark-r:
+    if: github.repository_owner == 'OKDP' && needs.generate-trivy-matrix.outputs.spark_r_matrix != '{"include":[]}'
+    name: spark-r (${{ needs.latest-github-release.outputs.tag_name }}/${{ matrix.spark_version }})
+    needs: [latest-github-release, generate-trivy-matrix]
+    runs-on: "ubuntu-latest"
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.generate-trivy-matrix.outputs.spark_r_matrix) }}
+    steps:
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: ${{ matrix.image }}
+          format: sarif
+          output: trivy-results-${{ matrix.image_tag }}.sarif
+          severity: CRITICAL,HIGH
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
+        with:
+          sarif_file: trivy-results-${{ matrix.image_tag }}.sarif
+          category: trivy-spark-r-${{ matrix.image_tag }}

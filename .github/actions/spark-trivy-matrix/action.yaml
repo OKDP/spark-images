@@ -1,0 +1,161 @@
+#
+# Copyright 2026 The OKDP Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+name: Build Spark Trivy scan matrices
+description: Build Trivy scan matrices for published Spark image tags
+
+inputs:
+  use_matrix:
+    description: The matrix version file to use
+    required: false
+    default: ".build/release-versions.yml"
+  images_file:
+    description: The image tag definition file to use
+    required: false
+    default: ".build/images.yml"
+  git_tag_name:
+    description: The Git remote latest tag name
+    required: true
+  registry:
+    description: The container registry
+    required: false
+    default: "quay.io"
+  repository_owner:
+    description: The repository owner used to build published image references
+    required: true
+
+outputs:
+  spark_base_matrix:
+    description: Trivy scan matrix for spark-base
+    value: ${{ steps.scan-matrix.outputs.spark_base_matrix }}
+  spark_matrix:
+    description: Trivy scan matrix for spark
+    value: ${{ steps.scan-matrix.outputs.spark_matrix }}
+  spark_py_matrix:
+    description: Trivy scan matrix for spark-py
+    value: ${{ steps.scan-matrix.outputs.spark_py_matrix }}
+  spark_r_matrix:
+    description: Trivy scan matrix for spark-r
+    value: ${{ steps.scan-matrix.outputs.spark_r_matrix }}
+
+runs:
+  using: composite
+  steps:
+    - name: Install yq
+      run: |
+        YQ_VERSION="v4.53.3"
+        YQ_SHA256="fa52a4e758c63d38299163fbdd1edfb4c4963247918bf9c1c5d31d84789eded4"
+        curl -fsSLo yq "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64"
+        echo "${YQ_SHA256}  yq" | sha256sum -c -
+        sudo install -m 0755 yq /usr/local/bin/yq
+      shell: bash
+
+    - name: Get release versions matrix 📥
+      id: release-versions
+      uses: ./.github/actions/spark-version-matrix
+      with:
+        use_matrix: ${{ inputs.use_matrix }}
+
+    - name: Generate Trivy scan matrix 📦
+      id: scan-matrix
+      env:
+        GIT_TAG_NAME: ${{ inputs.git_tag_name }}
+        IMAGES_FILE: ${{ inputs.images_file }}
+        RELEASE_MATRIX: ${{ steps.release-versions.outputs.matrix }}
+        REGISTRY: ${{ inputs.registry }}
+        REPOSITORY_OWNER: ${{ inputs.repository_owner }}
+      run: |
+        set -euo pipefail
+
+        repo_owner="$(printf "%s" "${REPOSITORY_OWNER}" | tr "[:upper:]" "[:lower:]")"
+        publish_repo="${REGISTRY}/${repo_owner}"
+        git_release_version="${GIT_TAG_NAME#v}"
+
+        spark_base_matrix="$(mktemp)"
+        spark_matrix="$(mktemp)"
+        spark_py_matrix="$(mktemp)"
+        spark_r_matrix="$(mktemp)"
+        echo '{"include":[]}' > "${spark_base_matrix}"
+        echo '{"include":[]}' > "${spark_matrix}"
+        echo '{"include":[]}' > "${spark_py_matrix}"
+        echo '{"include":[]}' > "${spark_r_matrix}"
+
+        append_image_tags() {
+          local matrix_file="$1"
+          local image="$2"
+          local tags
+          local date_token
+
+          tags="$(yq -oj ".images[] | select(.name == \"${image}\").tags" "${IMAGES_FILE}" | jq -r '.[]')"
+          date_token="\$(date '+%Y-%m-%d')"
+
+          while read -r tag_template; do
+            local tag
+            local image_ref
+            local image_tag
+
+            if [[ "${tag_template}" == *"${date_token}"* ]]; then
+              continue
+            fi
+
+            tag="$(eval echo "${tag_template}")"
+            image_ref="${publish_repo}/${image}:${tag}"
+            image_tag="${image}-${tag}"
+            image_tag="${image_tag//[^a-zA-Z0-9_.-]/-}"
+
+            jq \
+              --arg image "${image_ref}" \
+              --arg image_tag "${image_tag}" \
+              --arg image_name "${image}" \
+              --arg spark_version "${spark_version}" \
+              '.include += [{
+                image: $image,
+                image_tag: $image_tag,
+                image_name: $image_name,
+                spark_version: $spark_version
+              }]' \
+              "${matrix_file}" > "${matrix_file}.next"
+            mv "${matrix_file}.next" "${matrix_file}"
+          done <<< "${tags}"
+        }
+
+        while read -r version; do
+          spark_version="$(jq -r '.spark_version' <<< "${version}")"
+          scala_version="$(jq -r '.scala_version' <<< "${version}")"
+          java_version="$(jq -r '.java_version' <<< "${version}")"
+          python_version="$(jq -r '.python_version' <<< "${version}")"
+          r_version=""
+
+          append_image_tags "${spark_base_matrix}" "spark-base"
+          append_image_tags "${spark_matrix}" "spark"
+          append_image_tags "${spark_py_matrix}" "spark-py"
+          append_image_tags "${spark_r_matrix}" "spark-r"
+        done < <(jq -c '.[]' <<< "${RELEASE_MATRIX}")
+
+        spark_base_json="$(jq -c '.' "${spark_base_matrix}")"
+        spark_json="$(jq -c '.' "${spark_matrix}")"
+        spark_py_json="$(jq -c '.' "${spark_py_matrix}")"
+        spark_r_json="$(jq -c '.' "${spark_r_matrix}")"
+
+        echo "Generated $(jq '.include | length' <<< "${spark_base_json}") spark-base image scans"
+        echo "Generated $(jq '.include | length' <<< "${spark_json}") spark image scans"
+        echo "Generated $(jq '.include | length' <<< "${spark_py_json}") spark-py image scans"
+        echo "Generated $(jq '.include | length' <<< "${spark_r_json}") spark-r image scans"
+        echo "spark_base_matrix=${spark_base_json}" >> "${GITHUB_OUTPUT}"
+        echo "spark_matrix=${spark_json}" >> "${GITHUB_OUTPUT}"
+        echo "spark_py_matrix=${spark_py_json}" >> "${GITHUB_OUTPUT}"
+        echo "spark_r_matrix=${spark_r_json}" >> "${GITHUB_OUTPUT}"
+      shell: bash
