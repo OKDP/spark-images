@@ -106,6 +106,8 @@ jobs:
           format: sarif
           output: trivy-results-${{ matrix.image_tag }}.sarif
           severity: CRITICAL,HIGH
+          scanners: vuln
+          timeout: 20m
 
       - name: Upload Trivy scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
