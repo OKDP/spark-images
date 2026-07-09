@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.2.0](https://github.com/OKDP/spark-images/compare/v2.1.0...v2.2.0) (2026-07-09)
+
+
+### Features
+
+* **build:** upgrade okdp-spark-auth-filter to 1.4.3 ([345d577](https://github.com/OKDP/spark-images/commit/345d57716aa883eca3d9eb3239ce551240ca1f14))
+
+
+### Bug Fixes
+
+* **ci:** harden GitHub Actions security and fix permissions inheritance ([e07f417](https://github.com/OKDP/spark-images/commit/e07f417f7fd4b3ef55e7278b3db674ccdbdc98ef))
+
 ## [2.1.0](https://github.com/OKDP/spark-images/compare/v2.0.3...v2.1.0) (2026-04-01)
 
 
