@@ -7,7 +7,7 @@
 [![ci](https://github.com/OKDP/spark-images/actions/workflows/ci.yml/badge.svg)](https://github.com/OKDP/spark-images/actions/workflows/ci.yml)
 [![release-please](https://github.com/OKDP/spark-images/actions/workflows/release-please.yml/badge.svg)](https://github.com/OKDP/spark-images/actions/workflows/release-please.yml)
 [![Release](https://img.shields.io/github/v/release/OKDP/spark-images)](https://github.com/OKDP/spark-images/releases/latest)
-[![Spark](https://img.shields.io/badge/spark-3.2%20%7C%203.3%20%7C%203.4%20%7C%203.5-orange.svg)](https://spark.apache.org/)
+[![Spark](https://img.shields.io/badge/spark-3.2%20%7C%203.3%20%7C%203.4%20%7C%203.5%20%7C%204.0-orange.svg)](https://spark.apache.org/)
 [![License Apache2](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 
 # OKDP Spark Images
@@ -18,7 +18,7 @@ Apache Spark Docker images built from the official Spark distribution, with auto
 
 The upstream Apache Spark Docker images target a limited matrix and ship Spark as-is. OKDP rebuilds Spark from source with:
 
-- **Wider supported matrix**: Spark 3.2, 3.3, 3.4, 3.5 combined with Scala 2.12/2.13, Java 11/17 and Hadoop 3.3.6.
+- **Wider supported matrix**: Spark 3.2-3.5 with Scala 2.12/2.13, Java 11/17 and Hadoop 3.3.6; Spark 4.0 with Scala 2.13, Java 17 and Hadoop 3.4.1.
 - **Automatic security bumps**: Maven properties (Log4j, Jackson, Netty, Guava, AWS SDK, Jetty, …) are bumped to fixed versions at build time, declared in `spark-base/spark-X.Y/pombump-properties.yaml`.
 - **Selected source patches** for known Spark CVEs, declared in `.build/pre-build-patch-pombump.yml`.
 - **Bundled runtime jars** in the `spark` image: Apache Iceberg runtime + Iceberg AWS bundle, `okdp-spark-auth-filter` (OIDC on the Spark UI), Prometheus JMX javaagent. Full list in `.build/ci-versions.yml`.

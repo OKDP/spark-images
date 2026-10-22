@@ -1,0 +1,7 @@
+diff --git a/resource-managers/kubernetes/docker/src/main/dockerfiles/spark/entrypoint.sh b/resource-managers/kubernetes/docker/src/main/dockerfiles/spark/entrypoint.sh
+index f9561b9a..b6bfb5b0 100755
+--- a/resource-managers/kubernetes/docker/src/main/dockerfiles/spark/entrypoint.sh
++++ b/resource-managers/kubernetes/docker/src/main/dockerfiles/spark/entrypoint.sh
+@@ -118,1 +118,1 @@
+-exec /usr/bin/tini -s -- "${CMD[@]}"
++exec /sbin/tini -s -- "${CMD[@]}"

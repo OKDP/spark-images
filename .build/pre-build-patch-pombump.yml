@@ -141,3 +141,12 @@ controls:
       - bump-packages.patch
       - entrypoint.patch
       - spark_submit.patch
+  ## Spark 4.0.x versions
+  - spark_version: "4.0.4"
+    python_version: "3.11"
+    java_version: "17"
+    hadoop_version: "3.4.1"
+    patch_files:
+      - bump-packages.patch
+      - entrypoint.patch
+      - spark_submit.patch

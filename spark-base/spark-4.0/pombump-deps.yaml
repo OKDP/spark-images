@@ -1,0 +1,27 @@
+patches:
+  # renovate: datasource=maven depName=com.google.code.gson:gson
+  - groupId: com.google.code.gson
+    artifactId: gson
+    version: 2.11.0
+    scope: import
+    type: jar
+  - groupId: org.apache.commons
+    artifactId: commons-compress
+    version: "${commons-compress.version}"
+    scope: import
+    type: jar
+  - groupId: io.airlift
+    artifactId: aircompressor
+    version: 2.0.3
+    scope: import
+    type: jar
+  - groupId: commons-io
+    artifactId: commons-io
+    version: "${commons-io.version}"
+    scope: import
+    type: jar
+  - groupId: commons-codec
+    artifactId: commons-codec
+    version: "${commons-codec.version}"
+    scope: import
+    type: jar
