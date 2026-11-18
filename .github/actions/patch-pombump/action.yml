@@ -90,7 +90,7 @@ runs:
           PATCH_PATH="../${{ steps.patch_vars.outputs.patch_dir }}/$patch"
           if [[ -f "$PATCH_PATH" ]]; then
             echo "Applying patch $patch"
-            patch -p1 < "$PATCH_PATH"
+            patch -p1 < "$PATCH_PATH" || exit 1
           else
             echo "Patch file $PATCH_PATH not found!"
           fi
