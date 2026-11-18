@@ -2,7 +2,7 @@
 name: spark-pombump-testing
 description: Test the pombump files in spark-base/spark-<major.minor>/ (pombump-properties.yaml and pombump-deps.yaml) against the upstream Apache Spark source tag for each major Spark version (3.2, 3.3, 3.4, 3.5, 4.0). Clones apache/spark at tag v<version>, applies the configured source patches, then runs pombump on pom.xml. Use when asked to test, validate, or dry-run pombump configuration for a Spark version.
 user-invocable: true
-argument-hint: [spark-version, e.g. 4.0.5 or 3.5.6 — omit to test all major versions]
+argument-hint: "[spark-version, e.g. 4.0.5 or 3.5.6]"
 ---
 
 # Spark pombump testing
@@ -37,10 +37,6 @@ Do not use `spark-base/spark-4.0/other/`. CI does not read it.
 
 - `git`, `bash` (Git Bash on Windows; put Git's `usr\bin` first on `PATH` so GNU `patch` is used), GNU `patch`, `yq` (mikefarah v4), and `go` 1.22 or later.
 - Network access to `https://github.com/apache/spark.git` and `https://github.com/chainguard-dev/pombump.git`. These match CI.
-- Go modules should come from the Orange proxy, per the Orange OSPC rules:
-  ```bash
-  export GOPROXY=https://repos.tech.orange/artifactory/api/go/go-proxy-official
-  ```
 
 ## Step 1: Set variables
 

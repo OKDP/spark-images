@@ -2,7 +2,7 @@
 name: spark-patch-testing
 description: Test the Spark patch files in spark-base/ against the upstream Apache Spark source tag for a given version (3.2, 3.3, 3.4, 3.5, 4.0). Clones apache/spark at tag v<version>, then applies the patches listed for that version in .build/pre-build-patch-pombump.yml with `patch -p1 < "$PATCH_PATH" || exit 1`. Use when asked to test, validate, or check whether spark-base patches apply to a Spark version.
 user-invocable: true
-argument-hint: [spark-version, e.g. 4.0.5 or 3.5.6]
+argument-hint: "[spark-version, e.g. 4.0.5 or 3.5.6]"
 ---
 
 # Spark patch testing
@@ -113,7 +113,7 @@ Report to the user, per patch:
 - On Linux, `REPO` must point to a checkout that the user can read. If the repo is on a Windows drive under WSL, use the `/mnt/<drive>/...` path.
 - The clone is a full network download of the Spark tag. It can take several minutes on a slow link.
 - This skill only checks that the patches apply. It does not run pombump or build the image.
-- The clone uses GitHub (`apache/spark`), the same source as CI. This is intentional. Do not switch it to Orange GitLab unless the user asks.
+- The clone uses GitHub (`apache/spark`), the same source as CI. This is intentional.
 
 ## Resources
 
