@@ -1,11 +1,15 @@
 diff --git a/core/pom.xml b/core/pom.xml
-index 54a7e100..f757cad3 100644
+index f169811f38bb6a76144658b897555e7187f2d97d..46a5c3f6e419c615082e42ef0d68fe657ee9535a 100644
 --- a/core/pom.xml
 +++ b/core/pom.xml
-@@ -227,2 +227,6 @@
+@@ -226,6 +226,10 @@
+       <groupId>com.google.code.findbugs</groupId>
        <artifactId>jsr305</artifactId>
      </dependency>
 +    <dependency>
 +      <groupId>org.apache.logging.log4j</groupId>
 +      <artifactId>log4j-layout-template-json</artifactId>
 +    </dependency>
+ 
+     <dependency>
+       <groupId>com.ning</groupId>

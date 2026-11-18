@@ -22,6 +22,10 @@ The patches are applied in the following order, before pombump:
 | [entrypoint.patch](entrypoint.patch) | Changes the Kubernetes container entrypoint from `/usr/bin/tini` to `/sbin/tini`, preserving `-s -- "${CMD[@]}"`. | Aligns process startup with the image's `tini` location while preserving signal forwarding and child-process reaping. |
 | [spark_submit.patch](spark_submit.patch) | Wraps glob resolution for `args.jars`, `args.files`, `args.pyFiles`, and `args.archives` in `!isKubernetesCluster && sparkConf.getBoolean("spark.kubernetes.resolveGlobPathsInSubmit", true)`. | Avoids submit-side glob resolution in Kubernetes cluster mode and allows it to be disabled in other modes. |
 
+The three patches are regenerated against upstream tag `v4.0.5`, with matching
+context and line numbers so they apply without fuzz or offsets. Their resulting
+source changes are unchanged from the previous patches.
+
 ### Resource glob resolution behavior
 
 The submission patch changes when Spark expands resource path patterns:
