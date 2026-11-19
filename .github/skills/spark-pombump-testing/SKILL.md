@@ -17,9 +17,11 @@ Use the existing [spark-patch-testing](../spark-patch-testing/SKILL.md) skill if
 - `pombump-properties.yaml` or `pombump-deps.yaml` changed in `spark-base/`.
 - A CI run failed in the `Install and Run pombump` step.
 
-## Versions to cover
+## Version selection
 
-Test one representative tag per major version. These are the latest tags configured in `.build/pre-build-patch-pombump.yml`:
+Test exactly the full Spark version supplied in the current skill invocation. Do not choose a different version from this reference table or substitute the latest configured version. Ask the user for a version if the invocation does not include one.
+
+These are the latest tags configured in `.build/pre-build-patch-pombump.yml`, for reference only:
 
 | Major | Tag to test | Patch dir | Config check |
 |---|---|---|---|
@@ -40,11 +42,13 @@ Do not use `spark-base/spark-4.0/other/`. CI does not read it.
 
 ## Step 1: Set variables
 
+Set `SPARK_VERSION` to the exact full version supplied in the current skill invocation via `argument-hint`. Replace the placeholder below with that value before running the commands; do not use an example or table value as a fallback.
+
 ```bash
-SPARK_VERSION=4.0.5                                    # the version to test
+SPARK_VERSION="<version from current invocation>"      # the version to test
 POMBUMP_VERSION=v0.0.16                                # same default as the CI action
 REPO=$(git rev-parse --show-toplevel)
-MINOR=$(echo "$SPARK_VERSION" | awk -F. '{print $1"."$2}')   # 4.0
+MINOR=$(echo "$SPARK_VERSION" | awk -F. '{print $1"."$2}')
 PATCH_DIR="$REPO/spark-base/spark-$MINOR"
 PROPERTIES_FILE="$PATCH_DIR/pombump-properties.yaml"
 DEPS_FILE="$PATCH_DIR/pombump-deps.yaml"
@@ -76,7 +80,8 @@ Alternative if the module resolves through the proxy: `go install github.com/cha
 ```bash
 git clone --depth 1 --branch "v$SPARK_VERSION" https://github.com/apache/spark.git "$WORK/spark-source"
 cd "$WORK/spark-source"
-git describe --tags   # must print v4.0.5 (or the requested version)
+ACTUAL_TAG=$(git describe --tags)
+[[ "$ACTUAL_TAG" == "v$SPARK_VERSION" ]] || { echo "Expected v$SPARK_VERSION, got $ACTUAL_TAG"; exit 1; }
 ```
 
 ## Step 4: Apply the source patches
