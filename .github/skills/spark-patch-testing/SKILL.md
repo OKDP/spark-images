@@ -63,7 +63,7 @@ Confirm the checkout: `git describe --tags` should print `v4.0.5` (or the reques
 
 ## Step 3: Apply the patches
 
-Run the patches in the order from step 1. Each one uses the command below, which stops the run on the first failure:
+Run the patches in the order from step 1. Each patch must use LF line endings. Each one uses the command below, which stops the run on the first failure:
 
 ```bash
 for patch in $(yq -r ".controls[] | select(.spark_version == \"$SPARK_VERSION\") | .patch_files[]" \
@@ -72,12 +72,15 @@ for patch in $(yq -r ".controls[] | select(.spark_version == \"$SPARK_VERSION\")
   if [[ ! -f "$PATCH_PATH" ]]; then
     echo "Patch file $PATCH_PATH not found!"; exit 1
   fi
+  if grep -q $'\r' "$PATCH_PATH"; then
+    echo "CRLF line endings in $patch; patches must use LF"; exit 1
+  fi
   echo "Applying patch $patch"
   patch -p1 < "$PATCH_PATH" || exit 1
 done
 ```
 
-The missing-file check is an addition to the CI command. CI only prints "not found" and continues, so a typo in the YAML would pass there.
+The missing-file and CRLF checks are additions to the CI command. CI only prints "not found" and continues, so a typo in the YAML would pass there. The CRLF check is needed because GNU `patch` silently strips CRs (with a warning), so a CRLF patch can apply and still be wrong for the repo. Do not convert the patch in the repo unless the user asks; report the failing file so the user can convert it to LF.
 
 ## Step 4: Check for fuzz and rejects
 
@@ -109,7 +112,7 @@ Report to the user, per patch:
 - `patch -p1` returns 0 for fuzzy applies. A passing run does not mean the patch is exact. Check the output.
 - Patches are applied in sequence on the same tree. A patch can fail only because an earlier one changed the same lines. Check the order in the YAML.
 - Spark 4.0.x has no `aws-sdk-bump.patch` in its config, and 3.5 and later have no `make-distribution.patch`. Use only the list from the YAML.
-- Patch files in a Windows checkout may have CRLF line endings. If a patch fails with a format error, convert a temporary copy to LF before testing. Do not commit the conversion unless asked. On Linux or WSL, check the repo with `git status` first, because `core.autocrlf` can change line endings.
+- Patch files in a Windows checkout may have CRLF line endings. The step 3 check fails on them, and GNU `patch` would otherwise hide the problem with a "Stripping trailing CRs" warning. Check the output of `git status` and `git config core.autocrlf` before concluding, because git can change line endings on checkout.
 - On Linux, `REPO` must point to a checkout that the user can read. If the repo is on a Windows drive under WSL, use the `/mnt/<drive>/...` path.
 - The clone is a full network download of the Spark tag. It can take several minutes on a slow link.
 - This skill only checks that the patches apply. It does not run pombump or build the image.
