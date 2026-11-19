@@ -1,27 +1,13 @@
 patches:
-  # renovate: datasource=maven depName=com.google.code.gson:gson
-  - groupId: com.google.code.gson
-    artifactId: gson
-    version: 2.11.0
-    scope: import
-    type: jar
-  - groupId: org.apache.commons
-    artifactId: commons-compress
-    version: "${commons-compress.version}"
-    scope: import
-    type: jar
+  # renovate: datasource=maven depName=io.airlift:aircompressor
   - groupId: io.airlift
     artifactId: aircompressor
     version: 2.0.3
     scope: import
     type: jar
-  - groupId: commons-io
-    artifactId: commons-io
-    version: "${commons-io.version}"
+  # renovate: datasource=maven depName=io.vertx:vertx-core
+  - groupId: io.vertx
+    artifactId: vertx-core
+    version: 4.5.35
     scope: import
-    type: jar
-  - groupId: commons-codec
-    artifactId: commons-codec
-    version: "${commons-codec.version}"
-    scope: import
-    type: jar
+    type: pom

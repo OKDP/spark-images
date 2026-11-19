@@ -1,58 +1,43 @@
 properties:
-  - property: hadoop.version
-    # renovate: datasource=maven depName=org.apache.hadoop:hadoop-common versioning=maven
-    value: "3.4.1"
-  - property: ivy.version
-    # renovate: datasource=maven depName=org.apache.ivy:ivy versioning=maven
-    value: "2.5.3"
   - property: log4j.version
     # renovate: datasource=maven depName=org.apache.logging.log4j:log4j-core versioning=maven
-    value: "2.24.3"
-  - property: slf4j.version
-    # renovate: datasource=maven depName=org.slf4j:slf4j-api versioning=maven
-    value: "2.0.16"
-  - property: avro.version
-    # renovate: datasource=maven depName=org.apache.avro:avro versioning=maven
-    value: "1.12.0"
-  - property: snappy.version
-    # renovate: datasource=maven depName=org.xerial.snappy:snappy-java versioning=maven
-    value: "1.1.10.7"
-  - property: commons-compress.version
-    # renovate: datasource=maven depName=org.apache.commons:commons-compress versioning=maven
-    value: "1.27.1"
-  - property: commons-io.version
-    # renovate: datasource=maven depName=commons-io:commons-io versioning=maven
-    value: "2.18.0"
-  - property: commons-codec.version
-    # renovate: datasource=maven depName=commons-codec:commons-codec versioning=maven
-    value: "1.17.2"
-  - property: guava.version
-    # renovate: datasource=maven depName=com.google.guava:guava versioning=maven
-    value: "33.4.0-jre"
+    value: "2.26.1"
   - property: netty.version
     # renovate: datasource=maven depName=io.netty:netty-all versioning=maven
-    value: "4.1.118.Final"
+    value: "4.1.137.Final"
+  - property: aws.java.sdk.v2.version
+    # renovate: datasource=maven depName=software.amazon.awssdk:bundle versioning=maven
+    value: "2.41.34"
+  - property: bouncycastle.version
+    # renovate: datasource=maven depName=org.bouncycastle:bcprov-jdk18on versioning=maven
+    value: "1.85"
+  - property: guava.version
+    # renovate: datasource=maven depName=com.google.guava:guava versioning=maven
+    value: "33.7.2-jre"
+  - property: jersey.version
+    # renovate: datasource=maven depName=org.glassfish.jersey.core:jersey-server versioning=maven
+    value: "3.0.18"
   - property: zookeeper.version
     # renovate: datasource=maven depName=org.apache.zookeeper:zookeeper versioning=maven
-    value: "3.9.3"
-  - property: gcs-connector.version
-    # renovate: datasource=maven depName=com.google.cloud.bigdataoss:gcs-connector versioning=maven
-    value: "hadoop3-2.2.26"
-  - property: aws.java.sdk.version
-    # renovate: datasource=maven depName=com.amazonaws:aws-java-sdk versioning=maven
-    value: "1.11.655"
+    value: "3.9.7"
+  - property: commons-lang3.version
+    # renovate: datasource=maven depName=org.apache.commons:commons-lang3 versioning=maven
+    value: "3.18.0"
+  - property: hadoop.version
+    # renovate: datasource=maven depName=org.apache.hadoop:hadoop-common versioning=maven
+    value: "3.4.3"
   - property: fasterxml.jackson.version
-    # renovate: datasource=maven depName=com.fasterxml.jackson.core:jackson-core versioning=maven
-    value: "2.18.6"
+    # renovate: datasource=maven depName=com.fasterxml.jackson.core:jackson-databind versioning=maven
+    value: "2.18.11"
+  - property: jetty.version
+    # renovate: datasource=maven depName=org.eclipse.jetty:jetty-http versioning=maven
+    value: "11.0.26"
+  - property: fasterxml.jackson.version
+    # renovate: datasource=maven com.fasterxml.jackson.core:jackson-core versioning=maven
+    value: "2.18.9"
   - property: fasterxml.jackson.databind.version
     # renovate: datasource=maven depName=com.fasterxml.jackson.core:jackson-databind versioning=maven
-    value: "2.18.6"
-  - property: aws.kinesis.producer.version
-    # renovate: datasource=maven depName=com.amazonaws:amazon-kinesis-producer versioning=maven
-    value: "0.12.8"
-  - property: aws.kinesis.client.version
-    # renovate: datasource=maven depName=com.amazonaws:amazon-kinesis-client versioning=maven
-    value: "1.12.0"
-  - property: jetty.version
-    # renovate: datasource=maven depName=org.eclipse.jetty:jetty-server versioning=maven
-    value: "11.0.24"
+    value: "2.18.11"
+  - property: codehaus.jackson.version
+    # renovate: datasource=maven depName=org.codehaus.jackson:jackson-core-asl versioning=maven
+    value: "1.9.14.jdk17-redhat-00001"

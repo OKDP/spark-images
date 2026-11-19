@@ -57,25 +57,25 @@ not prove that a dependency consumes it or is included in the final image.
 
 | Maven property | Target value |
 |---|---|
-| `hadoop.version` | `3.4.1` |
+| `hadoop.version` | `3.4.3` |
 | `ivy.version` | `2.5.3` |
-| `log4j.version` | `2.24.3` |
+| `log4j.version` | `2.26.1` |
 | `slf4j.version` | `2.0.16` |
 | `avro.version` | `1.12.0` |
 | `snappy.version` | `1.1.10.7` |
 | `commons-compress.version` | `1.27.1` |
 | `commons-io.version` | `2.18.0` |
 | `commons-codec.version` | `1.17.2` |
-| `guava.version` | `33.4.0-jre` |
-| `netty.version` | `4.1.118.Final` |
-| `zookeeper.version` | `3.9.3` |
+| `guava.version` | `33.7.2-jre` |
+| `netty.version` | `4.1.137.Final` |
+| `zookeeper.version` | `3.9.7` |
 | `gcs-connector.version` | `hadoop3-2.2.26` |
 | `aws.java.sdk.version` | `1.11.655` |
-| `fasterxml.jackson.version` | `2.18.6` |
-| `fasterxml.jackson.databind.version` | `2.18.6` |
+| `fasterxml.jackson.version` | `2.18.11` |
+| `fasterxml.jackson.databind.version` | `2.18.11` |
 | `aws.kinesis.producer.version` | `0.12.8` |
 | `aws.kinesis.client.version` | `1.12.0` |
-| `jetty.version` | `11.0.24` |
+| `jetty.version` | `11.0.26` |
 
 ### Dependency targets
 
@@ -112,6 +112,3 @@ For the configuration-testing procedure, see the
 [spark-pombump-testing skill](../../.github/skills/spark-pombump-testing/SKILL.md).
 pombump re-serializes the POM, so textual diffs can include substantial formatting
 and element-order changes in addition to the requested version changes.
-
-Only the files directly in this directory are used by the current action;
-files under `other/` are not selected.
