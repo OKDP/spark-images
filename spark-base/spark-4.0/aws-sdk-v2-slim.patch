@@ -1,0 +1,81 @@
+diff --git a/hadoop-cloud/pom.xml b/hadoop-cloud/pom.xml
+index e46f240f..6faf04f5 100644
+--- i/hadoop-cloud/pom.xml
++++ w/hadoop-cloud/pom.xml
+@@ -75,6 +75,13 @@
+     <!--
+       the AWS module pulls in jackson; its transitive dependencies can create
+       intra-jackson-module version problems.
++
++      SPARK-SLIM-AWS: the full "software.amazon.awssdk:bundle" shaded uber-jar
++      packages every AWS SDK v2 service client (hundreds of MB) even though
++      hadoop-aws only ever calls into the S3, STS and KMS clients (plus the
++      apache/netty HTTP client implementations). Excluding the bundle and
++      declaring only the modules that are actually used keeps the same
++      functionality while dramatically slimming the resulting distribution.
+       -->
+     <dependency>
+       <groupId>org.apache.hadoop</groupId>
+@@ -86,6 +93,10 @@
+           <groupId>org.wildfly.openssl</groupId>
+           <artifactId>wildfly-openssl</artifactId>
+         </exclusion>
++        <exclusion>
++          <groupId>software.amazon.awssdk</groupId>
++          <artifactId>bundle</artifactId>
++        </exclusion>
+       </exclusions>
+     </dependency>
+     <dependency>
+@@ -93,16 +104,33 @@
+       <artifactId>wildfly-openssl</artifactId>
+       <version>${wildfly-openssl.version}</version>
+     </dependency>
++    <!-- Slim, unshaded replacement for software.amazon.awssdk:bundle:
++         only the AWS SDK v2 service clients used by hadoop-aws/hadoop-cloud-storage
++         and the HTTP client implementations they rely on. -->
+     <dependency>
+       <groupId>software.amazon.awssdk</groupId>
+-      <artifactId>bundle</artifactId>
++      <artifactId>s3-transfer-manager</artifactId>
++      <version>${aws.java.sdk.v2.version}</version>
++    </dependency>
++    <dependency>
++      <groupId>software.amazon.awssdk</groupId>
++      <artifactId>sts</artifactId>
++      <version>${aws.java.sdk.v2.version}</version>
++    </dependency>
++    <dependency>
++      <groupId>software.amazon.awssdk</groupId>
++      <artifactId>kms</artifactId>
++      <version>${aws.java.sdk.v2.version}</version>
++    </dependency>
++    <dependency>
++      <groupId>software.amazon.awssdk</groupId>
++      <artifactId>apache-client</artifactId>
++      <version>${aws.java.sdk.v2.version}</version>
++    </dependency>
++    <dependency>
++      <groupId>software.amazon.awssdk</groupId>
++      <artifactId>netty-nio-client</artifactId>
+       <version>${aws.java.sdk.v2.version}</version>
+-      <exclusions>
+-        <exclusion>
+-          <groupId>*</groupId>
+-          <artifactId>*</artifactId>
+-        </exclusion>
+-      </exclusions>
+     </dependency>
+     <dependency>
+       <groupId>com.google.cloud.bigdataoss</groupId>
+@@ -185,6 +213,10 @@
+           <groupId>org.apache.hadoop</groupId>
+           <artifactId>hadoop-cos</artifactId>
+         </exclusion>
++        <exclusion>
++          <groupId>software.amazon.awssdk</groupId>
++          <artifactId>bundle</artifactId>
++        </exclusion>
+       </exclusions>
+     </dependency>
+     <!--

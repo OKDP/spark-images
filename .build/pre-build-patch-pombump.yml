@@ -147,6 +147,9 @@ controls:
     java_version: "17"
     hadoop_version: "3.4.1"
     patch_files:
+      - aws-sdk-v2-slim.patch
       - bump-packages.patch
       - entrypoint.patch
+      - lz4.patch
+      - path-update-scripts.patch
       - spark_submit.patch

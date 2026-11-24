@@ -9,22 +9,30 @@ support, and a reproducible dependency baseline.
 The currently configured target in
 [pre-build-patch-pombump.yml](../../.build/pre-build-patch-pombump.yml) is
 **Spark 4.0.5, Java 17, Python 3.11, and Hadoop 3.4.1**. The build action matches
-all four values before processing the source. These files are not automatically
-applied to every Spark 4.0 release.
+all four values before processing the source. The files in this directory are not
+all applied to every Spark 4.0 release. The build applies only the patches listed
+for the matching configuration; for Spark 4.0.5, see [Source patches](#source-patches).
 
 ## Source patches
 
-The patches are applied in the following order, before pombump:
+For Spark 4.0.5, the build applies the patches listed in
+[pre-build-patch-pombump.yml](../../.build/pre-build-patch-pombump.yml), in the
+order shown below, before pombump. The table follows that order.
 
-| File | Introduced change | Goal |
-|---|---|---|
-| [bump-packages.patch](bump-packages.patch) | Adds `org.apache.logging.log4j:log4j-layout-template-json` to `core/pom.xml`, without an explicit version. | Makes Log4j's JSON Template Layout available to Spark core; the version comes from Maven dependency management. This adds the library but does not configure a JSON logging layout. |
-| [entrypoint.patch](entrypoint.patch) | Changes the Kubernetes container entrypoint from `/usr/bin/tini` to `/sbin/tini`, preserving `-s -- "${CMD[@]}"`. | Aligns process startup with the image's `tini` location while preserving signal forwarding and child-process reaping. |
-| [spark_submit.patch](spark_submit.patch) | Wraps glob resolution for `args.jars`, `args.files`, `args.pyFiles`, and `args.archives` in `!isKubernetesCluster && sparkConf.getBoolean("spark.kubernetes.resolveGlobPathsInSubmit", true)`. | Avoids submit-side glob resolution in Kubernetes cluster mode and allows it to be disabled in other modes. |
+| File | Applied for 4.0.5 | Introduced change | Goal |
+|---|---|---|---|
+| [aws-sdk-v2-slim.patch](aws-sdk-v2-slim.patch) | Yes | In `hadoop-cloud/pom.xml`, excludes `software.amazon.awssdk:bundle` and declares `s3-transfer-manager`, `sts`, `kms`, `apache-client`, and `netty-nio-client` at `${aws.java.sdk.v2.version}`. | Replaces the full shaded AWS SDK v2 bundle with the service and HTTP client modules that are used, to slim the distribution. |
+| [bump-packages.patch](bump-packages.patch) | Yes | Adds `org.apache.logging.log4j:log4j-layout-template-json` to `core/pom.xml`, without an explicit version. | Makes Log4j's JSON Template Layout available to Spark core; the version comes from Maven dependency management. This adds the library but does not configure a JSON logging layout. |
+| [entrypoint.patch](entrypoint.patch) | Yes | Changes the Kubernetes container entrypoint from `/usr/bin/tini` to `/sbin/tini`, preserving `-s -- "${CMD[@]}"`. | Aligns process startup with the image's `tini` location while preserving signal forwarding and child-process reaping. |
+| [lz4.patch](lz4.patch) | Yes | Changes the lz4-java coordinates from `org.lz4:lz4-java` to `at.yawk.lz4:lz4-java` in `core/pom.xml` and `connector/kafka-0-10-assembly/pom.xml`, and changes the root `pom.xml` managed version from `1.8.0` to `1.11.1`. | Moves to the `at.yawk.lz4` artifact at version 1.11.1. |
+| [path-update-scripts.patch](path-update-scripts.patch) | Yes | In `sbin/spark-daemon.sh`, calls `/usr/bin/nohup` and `/usr/bin/ps` by absolute path instead of resolving them from `PATH`. | Makes the daemon script use fixed binary locations. |
+| [spark_submit.patch](spark_submit.patch) | Yes | Wraps glob resolution for `args.jars`, `args.files`, `args.pyFiles`, and `args.archives` in `!isKubernetesCluster && sparkConf.getBoolean("spark.kubernetes.resolveGlobPathsInSubmit", true)`. | Avoids submit-side glob resolution in Kubernetes cluster mode and allows it to be disabled in other modes. |
 
-The three patches are regenerated against upstream tag `v4.0.5`, with matching
-context and line numbers so they apply without fuzz or offsets. Their resulting
-source changes are unchanged from the previous patches.
+The patches are applied with `patch -p1` in the order listed above. This README does not
+record whether they apply cleanly to upstream tag `v4.0.5`; the build's patch step is the check.
+
+The patches listed as applied have not been checked against the upstream source
+in this directory; the build's `patch -p1` run is the check for that.
 
 ### Resource glob resolution behavior
 
@@ -57,48 +65,43 @@ not prove that a dependency consumes it or is included in the final image.
 
 | Maven property | Target value |
 |---|---|
-| `hadoop.version` | `3.4.3` |
-| `ivy.version` | `2.5.3` |
 | `log4j.version` | `2.26.1` |
-| `slf4j.version` | `2.0.16` |
-| `avro.version` | `1.12.0` |
-| `snappy.version` | `1.1.10.7` |
-| `commons-compress.version` | `1.27.1` |
-| `commons-io.version` | `2.18.0` |
-| `commons-codec.version` | `1.17.2` |
-| `guava.version` | `33.7.2-jre` |
 | `netty.version` | `4.1.137.Final` |
+| `aws.java.sdk.v2.version` | `2.41.34` |
+| `bouncycastle.version` | `1.85` |
+| `guava.version` | `33.8.0-jre` |
+| `jersey.version` | `3.0.18` |
 | `zookeeper.version` | `3.9.7` |
-| `gcs-connector.version` | `hadoop3-2.2.26` |
-| `aws.java.sdk.version` | `1.11.655` |
-| `fasterxml.jackson.version` | `2.18.11` |
-| `fasterxml.jackson.databind.version` | `2.18.11` |
-| `aws.kinesis.producer.version` | `0.12.8` |
-| `aws.kinesis.client.version` | `1.12.0` |
+| `commons-lang3.version` | `3.18.0` |
+| `hadoop.version` | `3.4.3` |
+| `fasterxml.jackson.version` | `2.18.11` (first entry) and `2.18.9` (second entry) |
 | `jetty.version` | `11.0.26` |
+| `fasterxml.jackson.databind.version` | `2.18.11` |
+| `codehaus.jackson.version` | `1.9.14.jdk17-redhat-00001` |
+
+`fasterxml.jackson.version` is defined twice in
+[pombump-properties.yaml](pombump-properties.yaml) with different values. Resolve
+this in the YAML before relying on either value.
 
 ### Dependency targets
 
-All five entries in [pombump-deps.yaml](pombump-deps.yaml) specify `scope: import`
-and `type: jar`.
+[pombump-deps.yaml](pombump-deps.yaml) has two entries:
 
-| Dependency (`groupId:artifactId`) | Target version |
-|---|---|
-| `com.google.code.gson:gson` | `2.11.0` |
-| `org.apache.commons:commons-compress` | `${commons-compress.version}` (`1.27.1`) |
-| `io.airlift:aircompressor` | `2.0.3` |
-| `commons-io:commons-io` | `${commons-io.version}` (`2.18.0`) |
-| `commons-codec:commons-codec` | `${commons-codec.version}` (`1.17.2`) |
+| Dependency (`groupId:artifactId`) | Target version | Scope | Type |
+|---|---|---|---|
+| `io.airlift:aircompressor` | `2.0.3` | `import` | `jar` |
+| `io.vertx:vertx-core` | `4.5.36` | `import` | `pom` |
 
-Keep the `${...}` references aligned with the property targets. The YAML files
-are the source of truth; update these tables when changing their values.
+The YAML files are the source of truth; update these tables when changing their values.
 
 ## Processing and validation
 
 The existing [patch-pombump action](../../.github/actions/patch-pombump/action.yml):
 
 1. Selects the matching build configuration and checks out Spark tag `v4.0.5`.
-2. Applies the three source patches above with `patch -p1`.
+2. Applies the patches listed for that configuration with `patch -p1`
+   (for 4.0.5: `aws-sdk-v2-slim.patch`, `bump-packages.patch`, `entrypoint.patch`,
+   `lz4.patch`, `path-update-scripts.patch`, and `spark_submit.patch`; a listed file that is missing is skipped).
 3. Runs pombump against the patched root POM using both YAML files.
 4. Replaces the root POM with the generated output and copies the modified
    source tree into the image build context.
@@ -108,7 +111,5 @@ not proof of dependency compatibility or vulnerability remediation. Review the
 generated XML and pombump log, then validate the Spark build and affected runtime
 behavior. Use the required OSPC SQAAS gates for security verification.
 
-For the configuration-testing procedure, see the
-[spark-pombump-testing skill](../../.github/skills/spark-pombump-testing/SKILL.md).
 pombump re-serializes the POM, so textual diffs can include substantial formatting
 and element-order changes in addition to the requested version changes.

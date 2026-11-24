@@ -13,7 +13,7 @@ properties:
     value: "1.85"
   - property: guava.version
     # renovate: datasource=maven depName=com.google.guava:guava versioning=maven
-    value: "33.7.2-jre"
+    value: "33.8.0-jre"
   - property: jersey.version
     # renovate: datasource=maven depName=org.glassfish.jersey.core:jersey-server versioning=maven
     value: "3.0.18"
