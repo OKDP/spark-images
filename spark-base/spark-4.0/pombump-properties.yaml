@@ -1,0 +1,43 @@
+properties:
+  - property: log4j.version
+    # renovate: datasource=maven depName=org.apache.logging.log4j:log4j-core versioning=maven
+    value: "2.26.1"
+  - property: netty.version
+    # renovate: datasource=maven depName=io.netty:netty-all versioning=maven
+    value: "4.1.137.Final"
+  - property: aws.java.sdk.v2.version
+    # renovate: datasource=maven depName=software.amazon.awssdk:bundle versioning=maven
+    value: "2.41.34"
+  - property: bouncycastle.version
+    # renovate: datasource=maven depName=org.bouncycastle:bcprov-jdk18on versioning=maven
+    value: "1.85"
+  - property: guava.version
+    # renovate: datasource=maven depName=com.google.guava:guava versioning=maven
+    value: "33.8.0-jre"
+  - property: jersey.version
+    # renovate: datasource=maven depName=org.glassfish.jersey.core:jersey-server versioning=maven
+    value: "3.0.18"
+  - property: zookeeper.version
+    # renovate: datasource=maven depName=org.apache.zookeeper:zookeeper versioning=maven
+    value: "3.9.7"
+  - property: commons-lang3.version
+    # renovate: datasource=maven depName=org.apache.commons:commons-lang3 versioning=maven
+    value: "3.18.0"
+  - property: hadoop.version
+    # renovate: datasource=maven depName=org.apache.hadoop:hadoop-common versioning=maven
+    value: "3.4.3"
+  - property: fasterxml.jackson.version
+    # renovate: datasource=maven depName=com.fasterxml.jackson.core:jackson-databind versioning=maven
+    value: "2.18.11"
+  - property: jetty.version
+    # renovate: datasource=maven depName=org.eclipse.jetty:jetty-http versioning=maven
+    value: "11.0.26"
+  - property: fasterxml.jackson.version
+    # renovate: datasource=maven com.fasterxml.jackson.core:jackson-core versioning=maven
+    value: "2.18.9"
+  - property: fasterxml.jackson.databind.version
+    # renovate: datasource=maven depName=com.fasterxml.jackson.core:jackson-databind versioning=maven
+    value: "2.18.11"
+  - property: codehaus.jackson.version
+    # renovate: datasource=maven depName=org.codehaus.jackson:jackson-core-asl versioning=maven
+    value: "1.9.14.jdk17-redhat-00001"

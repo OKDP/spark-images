@@ -1,0 +1,13 @@
+patches:
+  # renovate: datasource=maven depName=io.airlift:aircompressor
+  - groupId: io.airlift
+    artifactId: aircompressor
+    version: 2.0.3
+    scope: import
+    type: jar
+  # renovate: datasource=maven depName=io.vertx:vertx-core
+  - groupId: io.vertx
+    artifactId: vertx-core
+    version: 4.5.36
+    scope: import
+    type: pom

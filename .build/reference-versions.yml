@@ -47,4 +47,10 @@ versions:
     java_version: [17]
     scala_version: [2.12, 2.13]
     hadoop_version: 3.3.6
+  # Spark 4.0.x requires Java 17 and Scala 2.13.
+  - python_version: 3.11
+    spark_version: [4.0.5]
+    java_version: [17]
+    scala_version: [2.13]
+    hadoop_version: 3.4.1
 
