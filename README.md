@@ -18,7 +18,7 @@ Apache Spark Docker images built from the official Spark distribution, with auto
 
 The upstream Apache Spark Docker images target a limited matrix and ship Spark as-is. OKDP rebuilds Spark from source with:
 
-- **Wider supported matrix**: Spark 3.2-3.5 with Scala 2.12/2.13, Java 11/17 and Hadoop 3.3.6; Spark 4.0 with Scala 2.13, Java 17 and Hadoop 3.4.1.
+- **Wider supported matrix**: Spark 3.2, 3.3, 3.4, 3.5, 4.0 with Scala 2.12/2.13, Java 11/17 and Hadoop 3.3.6/3.4.1; 
 - **Automatic security bumps**: Maven properties (Log4j, Jackson, Netty, Guava, AWS SDK, Jetty, …) are bumped to fixed versions at build time, declared in `spark-base/spark-X.Y/pombump-properties.yaml`.
 - **Selected source patches** for known Spark CVEs, declared in `.build/pre-build-patch-pombump.yml`.
 - **Bundled runtime jars** in the `spark` image: Apache Iceberg runtime + Iceberg AWS bundle, `okdp-spark-auth-filter` (OIDC on the Spark UI), Prometheus JMX javaagent. Full list in `.build/ci-versions.yml`.
